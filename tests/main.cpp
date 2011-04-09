@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(structure)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "article"));
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(newline_comment_1)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(newline_comment_2)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(missing_key)
         "   a = \"aasdasd adas d\""
         "}";
 
-    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
     BOOST_CHECK(!e.key);

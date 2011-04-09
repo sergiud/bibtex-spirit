@@ -84,7 +84,7 @@ struct BibTeXParser
 
         value_ = +ascii::digit | quotedValue_;
         entry = key_ >> '=' >> value_;
-        entries_ = entry >> +(',' >> entry);
+        entries_ = entry >> *(',' >> entry);
 
         entryKey_ = +(qi::char_ - ',');
 
