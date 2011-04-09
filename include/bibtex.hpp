@@ -91,7 +91,7 @@ struct BibTeXParser
         generic_ =
             '@' >> tag_ >>
             '{'
-                >> -(-entryKey_ >> ',') // tolerate a missing or empty key
+                >> -entryKey_ >> ','// tolerate an empty key
                 >> entries_
                 >> -qi::lit(',') // accept a trailing comma
                 >>
