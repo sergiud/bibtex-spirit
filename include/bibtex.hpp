@@ -31,7 +31,13 @@ typedef std::pair<std::string, std::string> KeyValue;
 typedef std::vector<KeyValue> KeyValueVector;
 typedef boost::spirit::standard::space_type Space;
 
-BOOST_SPIRIT_AUTO(qi, space, boost::spirit::ascii::space |
+namespace detail {
+
+namespace spirit_string = boost::spirit::standard;
+
+} // namespace detail
+
+BOOST_SPIRIT_AUTO(qi, space, detail::spirit_string::space |
     '%' >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol)
     >> boost::spirit::qi::eol);
 
@@ -55,7 +61,7 @@ struct BibTeXParser
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
-        namespace sn = boost::spirit::standard;
+        namespace sn = detail::spirit_string;
 
         escapedBrace.add("\\{", '{')("\\}", '}');
         escapedQuote.add("\\\"", '"');
