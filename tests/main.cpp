@@ -1,10 +1,19 @@
-#include <string>
+#define BOOST_TEST_MODULE BibTeX
+
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "bibtex.hpp"
 
-int main()
+using bibtex::BibTeXEntry;
+using boost::algorithm::iequals;
+
+BOOST_AUTO_TEST_CASE(structure)
 {
-    const std::string test =
+    BibTeXEntry e;
+
+    const char test[] =
         "@article{boa12,"
         "   a = {b asd asd adas das },"
         "   c = {d asd adasd a},"
@@ -12,55 +21,107 @@ int main()
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    const std::string test2 =
-        "@article{abcd1a,"
-        "   a = {b asd asd adas das },"
-        "   c = {d asd adasd a},"
-        "   d = {d asd \\} adasd a},"
-        "   d123 = \"test test\\\" aa\""
-        "}";
+    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
 
-    const std::string test3 =
-        "@journal{aaad1,"
-        "   a = {b asd asd\nsecond line\nthird line adas das },"
-        "   c = {d asd adasd a},"
-        "   d = {d asd \\} adasd a},"
-        "   d123 = \"test test\\\" aa\""
-        "}";
+    BOOST_CHECK(iequals(e.tag, "article"));
 
-    const std::string test4 =
+    BOOST_CHECK(!!e.key);
+    BOOST_CHECK_EQUAL(*e.key, "boa12");
+
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
+
+    BOOST_CHECK_EQUAL(e.entries[0].second, "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].first, "a");
+
+    BOOST_CHECK_EQUAL(e.entries[1].first, "c");
+    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd adasd a");
+
+    BOOST_CHECK_EQUAL(e.entries[2].first, "d");
+    BOOST_CHECK_EQUAL(e.entries[2].second, "d asd } adasd a");
+
+    BOOST_CHECK_EQUAL(e.entries[3].first, "d123");
+    BOOST_CHECK_EQUAL(e.entries[3].second, "test test\" aa");
+}
+
+BOOST_AUTO_TEST_CASE(newline_comment_1)
+{
+    BibTeXEntry e;
+
+    const char test[] =
         "%\n@book{abc1,"
         "   a = {b asd asd\nsecond line\nthird line adas das },\n"
-        "   c = {d asd adasd a},"
+        "  %c = {d asd adasd a},\n"
         "   d = {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    const std::string test5 =
-        "%\n@ article{aaa2a,"
+    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
+
+    BOOST_CHECK(iequals(e.tag, "book"));
+
+    BOOST_CHECK(!!e.key);
+    BOOST_CHECK_EQUAL(*e.key, "abc1");
+
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 3);
+
+    BOOST_CHECK_EQUAL(e.entries[0].first, "a");
+    BOOST_CHECK_EQUAL(e.entries[0].second,
+        "b asd asd\nsecond line\nthird line adas das ");
+
+    BOOST_CHECK_EQUAL(e.entries[1].first, "d");
+    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd } adasd a");
+
+    BOOST_CHECK_EQUAL(e.entries[2].first, "d123");
+    BOOST_CHECK_EQUAL(e.entries[2].second, "test test\" aa");
+}
+
+BOOST_AUTO_TEST_CASE(newline_comment_2)
+{
+    BibTeXEntry e;
+
+    const char test[] =
+        "%\n@book{abc1,"
         "   a = {b asd asd\nsecond line\nthird line adas das },\n"
-        "   c = {d asd adasd a},"
-        "   d = {d asd \\} adasd a},"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    const std::string test6 =
-        "@include{"
-        "   b asd asd\nsecond line\nthird line adas das \\},\n"
-        "}";
+    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
 
-    const std::string test7 =
-        "@book{abcd,"
+    BOOST_CHECK(iequals(e.tag, "book"));
+
+    BOOST_CHECK(!!e.key);
+    BOOST_CHECK_EQUAL(*e.key, "abc1");
+
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 3);
+
+    BOOST_CHECK_EQUAL(e.entries[0].first, "a");
+    BOOST_CHECK_EQUAL(e.entries[0].second,
+        "b asd asd\nsecond line\nthird line adas das ");
+
+    BOOST_CHECK_EQUAL(e.entries[1].first, "c");
+    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd } adasd a");
+
+    BOOST_CHECK_EQUAL(e.entries[2].first, "d123");
+    BOOST_CHECK_EQUAL(e.entries[2].second, "test test\" aa");
+}
+
+BOOST_AUTO_TEST_CASE(missing_key)
+{
+    BibTeXEntry e;
+
+    const char test[] =
+        "@book{,"
         "   a = \"aasdasd adas d\""
         "}";
 
-    using bibtex::parse;
+    BOOST_CHECK(parse(boost::make_iterator_range(test), e));
 
-    parse(test7.begin(), test7.end());
-    parse(test6.begin(), test6.end());
-    parse(test5.begin(), test5.end());
-    parse(test4.begin(), test4.end());
-    parse(test.begin(), test.end());
-    parse(test2.begin(), test2.end());
-    parse(test3.begin(), test3.end());
+    BOOST_CHECK(iequals(e.tag, "book"));
+    BOOST_CHECK(!e.key);
+
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
+
+    BOOST_CHECK_EQUAL(e.entries[0].first, "a");
+    BOOST_CHECK_EQUAL(e.entries[0].second, "aasdasd adas d");
 }

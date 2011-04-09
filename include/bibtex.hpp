@@ -44,12 +44,8 @@ BOOST_SPIRIT_AUTO(qi, space, detail::spirit_string::space |
 struct BibTeXEntry
 {
     std::string tag;
-    std::string key;
+    boost::optional<std::string> key;
     KeyValueVector entries;
-
-    ~BibTeXEntry()
-    {
-    }
 };
 
 template <class InputIterator, class Skipper>
@@ -95,7 +91,7 @@ struct BibTeXParser
         generic_ =
             '@' >> tag_ >>
             '{'
-                >> entryKey_ >> ','
+                >> -(-entryKey_ >> ',') // tolerate a missing or empty key
                 >> entries_
                 >> -qi::lit(',') // accept a trailing comma
                 >>
@@ -160,6 +156,7 @@ struct BibTeXParser
     StringRule quotedValue_;
     StringRule tag_;
     StringRule value_;
+
 };
 
 template<class InputIterator, class Skipper>
@@ -173,20 +170,18 @@ bool parse(InputIterator first, InputIterator last, Skipper& skipper,
 template<class SinglePassRange, class Skipper>
 bool parse(SinglePassRange range, Skipper& skipper, BibTeXEntry& entry)
 {
-    return parse(boost::begin(range), boost::end(range), entry);
+    return parse(boost::const_begin(range), boost::const_end(range), entry);
 }
 
 template<class InputIterator>
-bool parse(InputIterator first, InputIterator last)
+bool parse(InputIterator first, InputIterator last, BibTeXEntry& entry)
 {
-    BibTeXEntry entry;
     return parse(first, last, bibtex::space, entry);
 }
 
 template<class SinglePassRange>
-bool parse(SinglePassRange range)
+bool parse(SinglePassRange range, BibTeXEntry& entry)
 {
-    BibTeXEntry entry;
     return parse(range, bibtex::space, entry);
 }
 
@@ -195,7 +190,7 @@ bool parse(SinglePassRange range)
 BOOST_FUSION_ADAPT_STRUCT(
     bibtex::BibTeXEntry,
     (std::string, tag)
-    (std::string, key)
+    (boost::optional<std::string>, key)
     (bibtex::KeyValueVector, entries)
 )
 
