@@ -1,4 +1,6 @@
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
@@ -44,105 +46,109 @@ struct BibTeXParser
     : boost::spirit::qi::grammar<InputIterator, BibTeXEntry(), Skipper>
 {
     BibTeXParser()
-        : BibTeXParser::base_type(start)
+        : BibTeXParser::base_type(start_)
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
+        namespace sn = boost::spirit::standard;
 
         escapedBrace.add("\\{", '{')("\\}", '}');
         escapedQuote.add("\\\"", '"');
 
-        tag = +ascii::alnum;
-        key = +ascii::alnum;
+        tag_ = +ascii::alnum;
+        key_ = +ascii::alnum;
 
-        braceValue = qi::lexeme
+        braceValue_ = qi::lexeme
             [
                 '{'
                     >> *(escapedBrace | qi::char_ - '}') >>
                 '}'
             ];
 
-        quotedValue
+        quotedValue_
             = qi::lexeme
             [
                 '"'
                     >> *(escapedQuote | qi::char_ - '"') >>
                 '"'
             ]
-            | braceValue
+            | braceValue_
             ;
 
-        value = +ascii::digit | quotedValue;
-        entry = key >> '=' >> value;
-        entries = entry >> +(',' >> entry);
+        value_ = +ascii::digit | quotedValue_;
+        entry = key_ >> '=' >> value_;
+        entries_ = entry >> +(',' >> entry);
 
-        entryKey = +(qi::char_ - ',');
+        entryKey_ = +(qi::char_ - ',');
 
-        genericEntry = '@' >> tag >>
+        generic_ =
+            '@' >> tag_ >>
             '{'
-                >> entryKey >> ','
-                >> entries
+                >> entryKey_ >> ','
+                >> entries_
                 >> -qi::lit(',') // accept a trailing comma
                 >>
             '}'
             ;
 
-        stringEntry =
-            '@' >> standard::no_case[qi::lit("string")] >>
+        string_ =
+            '@' >> sn::no_case
+            [
+                qi::string("string")
+                [
+                    ph::at_c<0>(_val) = _1
+                ]
+            ]
+            >>
             '{'
                 >> entry
                 [
-                    ph::bind(&KeyValueVector::assign,
-                        ph::bind(&BibTeXEntry::entries, qi::_val),
-                            1, qi::_1)
+                    ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1, _1)
                 ]
                 >>
             '}'
             ;
 
-        includeEntry
-            = '@' >> standard::no_case[qi::lit("include")]
-            >> braceValue
+        simple_
+            =
+            '@' >> sn::no_case
             [
-                ph::bind(&KeyValueVector::assign,
-                    ph::bind(&BibTeXEntry::entries, qi::_val), 1,
-                    ph::construct<KeyValue>(
-                        KeyValue::first_type(), qi::_1))
+                (sn::string("comment") | sn::string("include"))
+                [
+                    ph::at_c<0>(_val) = _1
+                ]
+            ]
+            >> braceValue_
+            [
+                ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1,
+                    ph::construct<KeyValue>(KeyValue::first_type(), _1))
             ]
             ;
 
-        comment
-            = '@' >> standard::no_case[qi::lit("comment")]
-            >> braceValue
-            [
-                ph::bind(&KeyValueVector::assign,
-                    ph::bind(&BibTeXEntry::entries, qi::_val), 1,
-                    ph::construct<KeyValue>(
-                        KeyValue::first_type(), qi::_1))
-            ]
-            ;
-
-        start = stringEntry | includeEntry | comment | genericEntry;
+        start_
+            = string_
+            | simple_
+            | generic_;
     }
 
     typedef boost::spirit::qi::rule<InputIterator, std::string(), Skipper>
         StringRule;
 
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
     boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> stringEntry;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> genericEntry;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> includeEntry;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> comment;
-    boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> include_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> simple_;
+    boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
-    StringRule key;
-    StringRule entryKey;
-    StringRule quotedValue;
-    StringRule tag;
-    StringRule value;
-    StringRule braceValue;
+    StringRule key_;
+    StringRule entryKey_;
+    StringRule quotedValue_;
+    StringRule tag_;
+    StringRule value_;
+    StringRule braceValue_;
 };
 
 template<class InputIterator, class Skipper>
@@ -185,7 +191,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 int main()
 {
     const std::string test =
-        "@comment{boa12,"
+        "@article{boa12,"
         "   a = {b asd asd adas das },"
         "   c = {d asd adasd a},"
         "   d = {d asd \\} adasd a},"
@@ -193,7 +199,7 @@ int main()
         "}";
 
     const std::string test2 =
-        "@comment{"
+        "@article{abcd1a,"
         "   a = {b asd asd adas das },"
         "   c = {d asd adasd a},"
         "   d = {d asd \\} adasd a},"
@@ -201,7 +207,7 @@ int main()
         "}";
 
     const std::string test3 =
-        "@comment{"
+        "@journal{aaad1,"
         "   a = {b asd asd\nsecond line\nthird line adas das },"
         "   c = {d asd adasd a},"
         "   d = {d asd \\} adasd a},"
@@ -209,7 +215,7 @@ int main()
         "}";
 
     const std::string test4 =
-        "%\n@book{abc1"
+        "%\n@book{abc1,"
         "   a = {b asd asd\nsecond line\nthird line adas das },\n"
         "   c = {d asd adasd a},"
         "   d = {d asd \\} adasd a},"
@@ -217,7 +223,7 @@ int main()
         "}";
 
     const std::string test5 =
-        "%\n@ comment{"
+        "%\n@ article{aaa2a,"
         "   a = {b asd asd\nsecond line\nthird line adas das },\n"
         "   c = {d asd adasd a},"
         "   d = {d asd \\} adasd a},"
@@ -231,7 +237,7 @@ int main()
 
     const std::string test7 =
         "@book{abcd,"
-        "   a = {aasdasd adas d}"
+        "   a = \"aasdasd adas d\""
         "}";
 
     using bibtex::parse;
