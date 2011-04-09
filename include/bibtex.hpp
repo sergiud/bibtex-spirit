@@ -139,21 +139,21 @@ struct BibTeXParser
     typedef boost::spirit::qi::rule<InputIterator, std::string(), Skipper>
         StringRule;
 
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
-    boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> include_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> simple_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
+    boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry;
     boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
-    StringRule key_;
+    StringRule braceValue_;
     StringRule entryKey_;
+    StringRule key_;
     StringRule quotedValue_;
     StringRule tag_;
     StringRule value_;
-    StringRule braceValue_;
 };
 
 template<class InputIterator, class Skipper>
