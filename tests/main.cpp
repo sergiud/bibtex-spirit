@@ -141,3 +141,16 @@ BOOST_AUTO_TEST_CASE(empty)
 
     BOOST_REQUIRE(e.entries.empty());
 }
+
+BOOST_AUTO_TEST_CASE(comparison)
+{
+    BibTeXEntry e;
+
+    const char test[] =
+        "@book{,"
+        "}";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+
+    BOOST_CHECK(e == e);
+}

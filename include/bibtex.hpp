@@ -16,6 +16,7 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/include/vector.hpp>
+#include <boost/operators.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/spirit/include/phoenix.hpp>
@@ -47,12 +48,25 @@ BOOST_SPIRIT_AUTO(qi, space, detail::spirit_string::space |
     '%' >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol)
     >> boost::spirit::qi::eol);
 
+/**
+ * @brief Single BibTeX entry.
+ */
 struct BibTeXEntry
+    : boost::equality_comparable<BibTeXEntry>
 {
+    //! Entry's tag
     std::string tag;
+    //! Entry's optional key.
     boost::optional<std::string> key;
+    //! Entry's key/value pairs.
     KeyValueVector entries;
 };
+
+inline bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs)
+{
+    return lhs.tag == rhs.tag && lhs.tag == rhs.tag &&
+        lhs.entries == rhs.entries;
+}
 
 template <class InputIterator, class Skipper>
 struct BibTeXParser
@@ -167,7 +181,7 @@ struct BibTeXParser
 
 template<class InputIterator, class Skipper>
 bool parse(InputIterator first, InputIterator last, Skipper& skipper,
-                 BibTeXEntry& entry)
+           BibTeXEntry& entry)
 {
     BibTeXParser<InputIterator, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper, entry);
