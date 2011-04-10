@@ -1,5 +1,7 @@
 #define BOOST_TEST_MODULE BibTeX
 
+#include <vector>
+
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
@@ -153,4 +155,27 @@ BOOST_AUTO_TEST_CASE(comparison)
     BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(e == e);
+}
+
+BOOST_AUTO_TEST_CASE(multiple)
+{
+    std::vector<BibTeXEntry> e;
+
+    const char test[] =
+        "%\n@book{abc1,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\""
+        "}"
+        "\n"
+        "%\n@book{abc2,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\""
+        "}";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE_EQUAL(e.size(), 2);
+
+    BOOST_CHECK(e[0] == e[1]);
 }

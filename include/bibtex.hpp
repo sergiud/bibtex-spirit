@@ -1,5 +1,5 @@
 /**
- * @brief Boost.Spirit v2 based BibTeX parser implementation.
+ * @brief Boost.Spirit v2 based BibTeX parser.
  * @file bibtex.hpp
  * @author Sergiu Dotenco
  */
@@ -22,6 +22,7 @@
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #ifndef BOOST_SPIRIT_AUTO
 #define BOOST_SPIRIT_AUTO(domain_, name, expr)                \
@@ -54,7 +55,7 @@ BOOST_SPIRIT_AUTO(qi, space, detail::spirit_string::space |
 struct BibTeXEntry
     : boost::equality_comparable<BibTeXEntry>
 {
-    //! Entry's tag
+    //! Entry's tag.
     std::string tag;
     //! Entry's optional key.
     boost::optional<std::string> key;
@@ -69,11 +70,12 @@ inline bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs)
 }
 
 template <class InputIterator, class Skipper>
-struct BibTeXParser
-    : boost::spirit::qi::grammar<InputIterator, BibTeXEntry(), Skipper>
+class BibTeXParser
+    : public boost::spirit::qi::grammar<InputIterator, BibTeXEntry(), Skipper>
 {
+public:
     BibTeXParser()
-        : BibTeXParser::base_type(start_)
+        : base_type(start_)
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
@@ -158,6 +160,7 @@ struct BibTeXParser
             | generic_;
     }
 
+private:
     typedef boost::spirit::qi::rule<InputIterator, std::string(), Skipper>
         StringRule;
 
@@ -176,33 +179,80 @@ struct BibTeXParser
     StringRule quotedValue_;
     StringRule tag_;
     StringRule value_;
+};
 
+template <class InputIterator, class Container, class Skipper>
+class BibTeXContainerParser
+    : public boost::spirit::qi::grammar<InputIterator, Container(), Skipper>
+{
+public:
+    BibTeXContainerParser()
+        : base_type(start_)
+    {
+        start_ = *parser_;
+    }
+
+private:
+    BibTeXParser<InputIterator, Skipper> parser_;
+    boost::spirit::qi::rule<InputIterator, Container(), Skipper> start_;
 };
 
 template<class InputIterator, class Skipper>
-bool parse(InputIterator first, InputIterator last, Skipper& skipper,
-           BibTeXEntry& entry)
+inline bool parse(InputIterator first, InputIterator last, Skipper& skipper,
+                  BibTeXEntry& entry)
 {
     BibTeXParser<InputIterator, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper, entry);
 }
 
+template<class InputIterator, class Skipper, class Container>
+inline bool parse(InputIterator first, InputIterator last, Skipper& skipper,
+    Container& entries, boost::enable_if<boost::is_same<
+        typename Container::value_type, BibTeXEntry> >* dummy = NULL)
+{
+    BibTeXContainerParser<InputIterator, Container, Skipper> parser;
+    return boost::spirit::qi::phrase_parse(first, last, parser, skipper,
+        entries);
+}
+
 template<class SinglePassRange, class Skipper>
-bool parse(SinglePassRange range, Skipper& skipper, BibTeXEntry& entry)
+inline bool parse(SinglePassRange range, Skipper& skipper, BibTeXEntry& entry)
 {
     return parse(boost::const_begin(range), boost::const_end(range), entry);
 }
 
+template<class SinglePassRange, class Skipper, class Container>
+inline bool parse(SinglePassRange range, Skipper& skipper, Container& entries,
+    boost::enable_if<boost::is_same<
+        typename Container::value_type, BibTeXEntry> >* dummy = NULL)
+{
+    return parse(boost::const_begin(range), boost::const_end(range), entries);
+}
+
 template<class InputIterator>
-bool parse(InputIterator first, InputIterator last, BibTeXEntry& entry)
+inline bool parse(InputIterator first, InputIterator last, BibTeXEntry& entry)
 {
     return parse(first, last, bibtex::space, entry);
 }
 
+template<class InputIterator, class Container>
+inline bool parse(InputIterator first, InputIterator last, Container& entries,
+    boost::enable_if<boost::is_same<
+        typename Container::value_type, BibTeXEntry> >* dummy = NULL)
+{
+    return parse(first, last, bibtex::space, entries);
+}
+
 template<class SinglePassRange>
-bool parse(SinglePassRange range, BibTeXEntry& entry)
+inline bool parse(SinglePassRange range, BibTeXEntry& entry)
 {
     return parse(range, bibtex::space, entry);
+}
+
+template<class SinglePassRange, class Container>
+inline bool parse(SinglePassRange range, Container& entries)
+{
+    return parse(range, bibtex::space, entries);
 }
 
 } // namespace bibtex
