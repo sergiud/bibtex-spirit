@@ -75,7 +75,7 @@ class BibTeXParser
 {
 public:
     BibTeXParser()
-        : base_type(start_)
+        : BibTeXParser::base_type(start_)
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
@@ -225,7 +225,7 @@ class BibTeXContainerParser
 {
 public:
     BibTeXContainerParser()
-        : base_type(start_)
+        : BibTeXContainerParser::base_type(start_)
     {
         start_ = *parser_;
     }
