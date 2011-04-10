@@ -125,3 +125,19 @@ BOOST_AUTO_TEST_CASE(missing_key)
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
     BOOST_CHECK_EQUAL(e.entries[0].second, "aasdasd adas d");
 }
+
+BOOST_AUTO_TEST_CASE(empty)
+{
+    BibTeXEntry e;
+
+    const char test[] =
+        "@book{,"
+        "}";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+
+    BOOST_CHECK(iequals(e.tag, "book"));
+    BOOST_CHECK(!e.key);
+
+    BOOST_REQUIRE(e.entries.empty());
+}
