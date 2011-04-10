@@ -10,6 +10,8 @@ find_package (Boost 1.46 REQUIRED unit_test_framework)
 # Do not link Boost libraries automatically
 add_definitions (-DBOOST_ALL_NO_LIB)
 
+file (GLOB BIBTEX_HPP include/*.hpp)
+
 include_directories (${Boost_INCLUDE_DIRS})
 include_directories (include)
 

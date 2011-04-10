@@ -1,3 +1,9 @@
+/**
+ * @brief Boost.Spirit v2 based BibTeX parser implementation.
+ * @file bibtex.hpp
+ * @author Sergiu Dotenco
+ */
+
 #ifndef BIBTEX_HPP
 #define BIBTEX_HPP
 
