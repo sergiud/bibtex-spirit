@@ -11,7 +11,7 @@
 using bibtex::BibTeXEntry;
 using boost::algorithm::iequals;
 
-BOOST_AUTO_TEST_CASE(structure)
+BOOST_AUTO_TEST_CASE(structure_1)
 {
     BibTeXEntry e;
 
@@ -22,6 +22,40 @@ BOOST_AUTO_TEST_CASE(structure)
         "   d = {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\""
         "}";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+
+    BOOST_CHECK(iequals(e.tag, "article"));
+
+    BOOST_CHECK(!!e.key);
+    BOOST_CHECK_EQUAL(*e.key, "boa12");
+
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
+
+    BOOST_CHECK_EQUAL(e.entries[0].second, "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].first, "a");
+
+    BOOST_CHECK_EQUAL(e.entries[1].first, "c");
+    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd adasd a");
+
+    BOOST_CHECK_EQUAL(e.entries[2].first, "d");
+    BOOST_CHECK_EQUAL(e.entries[2].second, "d asd } adasd a");
+
+    BOOST_CHECK_EQUAL(e.entries[3].first, "d123");
+    BOOST_CHECK_EQUAL(e.entries[3].second, "test test\" aa");
+}
+
+BOOST_AUTO_TEST_CASE(structure_2)
+{
+    BibTeXEntry e;
+
+    const char test[] =
+        "@article(boa12,"
+        "   a = {b asd asd adas das },"
+        "   c = {d asd adasd a},"
+        "   d = {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\""
+        ")";
 
     BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
 
@@ -167,6 +201,29 @@ BOOST_AUTO_TEST_CASE(multiple)
         "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\""
         "}"
+        "\n"
+        "%\n@book{abc2,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\""
+        "}";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE_EQUAL(e.size(), 2);
+
+    BOOST_CHECK(e[0] == e[1]);
+}
+
+BOOST_AUTO_TEST_CASE(mixed_multiple)
+{
+    std::vector<BibTeXEntry> e;
+
+    const char test[] =
+        "%\n@book(abc1,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\""
+        ")"
         "\n"
         "%\n@book{abc2,"
         "   a = {b asd asd\nsecond line\nthird line adas das },\n"

@@ -41,11 +41,11 @@ typedef boost::spirit::standard::space_type Space;
 
 namespace detail {
 
-namespace spirit_string = boost::spirit::standard;
+namespace encoding = boost::spirit::standard;
 
 } // namespace detail
 
-BOOST_SPIRIT_AUTO(qi, space, detail::spirit_string::space |
+BOOST_SPIRIT_AUTO(qi, space, detail::encoding::space |
     '%' >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol)
     >> boost::spirit::qi::eol);
 
@@ -79,7 +79,7 @@ public:
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
-        namespace sn = detail::spirit_string;
+        namespace sn = detail::encoding;
 
         escapedBrace.add("\\{", '{')("\\}", '}');
         escapedQuote.add("\\\"", '"');
@@ -106,21 +106,55 @@ public:
 
         value_ = +ascii::digit | quotedValue_;
         entry = key_ >> '=' >> value_;
-        entries_ = -(entry >> *(',' >> entry));
+        entries_ = -(entry % ',');
 
         entryKey_ = +(qi::char_ - ',');
 
-        generic_ =
+        body_
+            = -entryKey_ >> ',' // tolerate an empty key
+            >> entries_
+            >> -qi::lit(',') // accept a trailing comma
+            ;
+
+        generic1_
+            =
+            '@' >> tag_[ph::at_c<0>(_val) = _1] >>
+            (
+                (
+                '{'
+                    >> -entryKey_ >> ',' // tolerate an empty key
+                    >> entries_
+                    >> -qi::lit(',') >> // accept a trailing comma
+                '}'
+                )
+                |
+                (
+                '('
+                    >> -entryKey_ >> ',' // tolerate an empty key
+                    >> entries_
+                    >> -qi::lit(',') >> // accept a trailing comma
+                ')'
+                )
+            )
+            [
+                ph::at_c<1>(_val) = ph::at_c<0>(_1),
+                ph::at_c<2>(_val) = ph::at_c<1>(_1)
+            ]
+            ;
+
+        generic2_
+            =
             '@' >> tag_ >>
-            '{'
-                >> -entryKey_ >> ','// tolerate an empty key
+            '('
+                >> -entryKey_ >> ',' // tolerate an empty key
                 >> entries_
                 >> -qi::lit(',') // accept a trailing comma
                 >>
-            '}'
+            ')'
             ;
 
-        string_ =
+        string_
+            =
             '@' >> sn::no_case
             [
                 qi::string("string")
@@ -157,22 +191,26 @@ public:
         start_
             = string_
             | simple_
-            | generic_;
+            | generic1_
+            ;
     }
 
 private:
     typedef boost::spirit::qi::rule<InputIterator, std::string(), Skipper>
         StringRule;
 
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic1_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic2_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> include_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> simple_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
+    boost::spirit::qi::rule<InputIterator, Skipper> body_;
     boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry;
     boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
+    char brace_;
     StringRule braceValue_;
     StringRule entryKey_;
     StringRule key_;
