@@ -105,8 +105,8 @@ public:
             ;
 
         value_ = +ascii::digit | quotedValue_;
-        entry = key_ >> '=' >> value_;
-        entries_ = -(entry % ',');
+        entry_ = key_ >> '=' >> value_;
+        entries_ = -(entry_ % ',');
 
         entryKey_ = +(qi::char_ - ',');
 
@@ -116,41 +116,18 @@ public:
             >> -qi::lit(',') // accept a trailing comma
             ;
 
-        generic1_
+        generic_
             =
             '@' >> tag_[ph::at_c<0>(_val) = _1] >>
             (
-                (
-                '{'
-                    >> -entryKey_ >> ',' // tolerate an empty key
-                    >> entries_
-                    >> -qi::lit(',') >> // accept a trailing comma
-                '}'
-                )
+                ('{' >> body_ >> '}')
                 |
-                (
-                '('
-                    >> -entryKey_ >> ',' // tolerate an empty key
-                    >> entries_
-                    >> -qi::lit(',') >> // accept a trailing comma
-                ')'
-                )
+                ('(' >> body_ >> ')')
             )
             [
                 ph::at_c<1>(_val) = ph::at_c<0>(_1),
                 ph::at_c<2>(_val) = ph::at_c<1>(_1)
             ]
-            ;
-
-        generic2_
-            =
-            '@' >> tag_ >>
-            '('
-                >> -entryKey_ >> ',' // tolerate an empty key
-                >> entries_
-                >> -qi::lit(',') // accept a trailing comma
-                >>
-            ')'
             ;
 
         string_
@@ -164,7 +141,7 @@ public:
             ]
             >>
             '{'
-                >> entry
+                >> entry_
                 [
                     ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1, _1)
                 ]
@@ -191,7 +168,7 @@ public:
         start_
             = string_
             | simple_
-            | generic1_
+            | generic_
             ;
     }
 
@@ -199,18 +176,18 @@ private:
     typedef boost::spirit::qi::rule<InputIterator, std::string(), Skipper>
         StringRule;
 
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic1_;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic2_;
+    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> include_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> simple_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
-    boost::spirit::qi::rule<InputIterator, Skipper> body_;
-    boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry;
+    boost::spirit::qi::rule<InputIterator,
+        boost::fusion::vector<boost::optional<std::string>,
+        KeyValueVector>(), Skipper> body_;
+    boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry_;
     boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
-    char brace_;
     StringRule braceValue_;
     StringRule entryKey_;
     StringRule key_;
