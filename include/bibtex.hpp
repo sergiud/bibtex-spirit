@@ -75,7 +75,7 @@ class BibTeXParser
 {
 public:
     BibTeXParser()
-        : BibTeXParser::base_type(start_)
+        : BibTeXParser::base_type(start_, "single BibTeX entry")
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
@@ -84,10 +84,12 @@ public:
         escapedBrace.add("\\{", '{')("\\}", '}');
         escapedQuote.add("\\\"", '"');
 
-        tag_ = +ascii::alnum;
-        key_ = +ascii::alnum;
+        tag_ = +detail::encoding::alnum;
+        entryKey_ = +(qi::char_ - ',');
+        key_ = +(~qi::char_("=,})"));
 
-        braceValue_ = qi::lexeme
+        braceValue_
+            = qi::lexeme
             [
                 '{'
                     >> *(escapedBrace | qi::char_ - '}') >>
@@ -104,11 +106,13 @@ public:
             | braceValue_
             ;
 
-        value_ = +ascii::digit | quotedValue_;
+        value_
+            = quotedValue_
+            | +(~qi::char_(",})"))
+            ;
+
         entry_ = key_ >> '=' >> value_;
         entries_ = -(entry_ % ',');
-
-        entryKey_ = +(qi::char_ - ',');
 
         body_
             = -entryKey_ >> ',' // tolerate an empty key
@@ -153,7 +157,13 @@ public:
             =
             '@' >> sn::no_case
             [
-                (sn::string("comment") | sn::string("include"))
+                (
+                    sn::string("comment")
+                    |
+                    sn::string("include")
+                    |
+                    sn::string("preamble")
+                )
                 [
                     ph::at_c<0>(_val) = _1
                 ]
@@ -202,7 +212,7 @@ class BibTeXContainerParser
 {
 public:
     BibTeXContainerParser()
-        : BibTeXContainerParser::base_type(start_)
+        : BibTeXContainerParser::base_type(start_, "multiple BibTeX entries")
     {
         start_ = *parser_;
     }
@@ -223,7 +233,7 @@ inline bool parse(InputIterator first, InputIterator last, Skipper& skipper,
 template<class InputIterator, class Skipper, class Container>
 inline bool parse(InputIterator first, InputIterator last, Skipper& skipper,
     Container& entries, boost::enable_if<boost::is_same<
-        typename Container::value_type, BibTeXEntry> >* dummy = NULL)
+        typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
     BibTeXContainerParser<InputIterator, Container, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper,
@@ -253,7 +263,7 @@ inline bool parse(InputIterator first, InputIterator last, BibTeXEntry& entry)
 template<class InputIterator, class Container>
 inline bool parse(InputIterator first, InputIterator last, Container& entries,
     boost::enable_if<boost::is_same<
-        typename Container::value_type, BibTeXEntry> >* dummy = NULL)
+        typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
     return parse(first, last, bibtex::space, entries);
 }

@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(structure_1)
     BibTeXEntry e;
 
     const char test[] =
-        "@article{boa12,"
+        "@article{boa:12,"
         "   a = {b asd asd adas das },"
         "   c = {d asd adasd a},"
         "   d = {d asd \\} adasd a},"
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(structure_1)
     BOOST_CHECK(iequals(e.tag, "article"));
 
     BOOST_CHECK(!!e.key);
-    BOOST_CHECK_EQUAL(*e.key, "boa12");
+    BOOST_CHECK_EQUAL(*e.key, "boa:12");
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
 
@@ -191,7 +191,23 @@ BOOST_AUTO_TEST_CASE(comparison)
     BOOST_CHECK(e == e);
 }
 
-BOOST_AUTO_TEST_CASE(multiple)
+BOOST_AUTO_TEST_CASE(special)
+{
+    BibTeXEntry e;
+
+    const char test[] =
+        "@string{b-test = \"asd asdasd a\" }";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+
+    BOOST_CHECK_EQUAL(e.tag, "string");
+
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
+    BOOST_CHECK_EQUAL(e.entries[0].first, "b-test");
+    BOOST_CHECK_EQUAL(e.entries[0].second, "asd asdasd a");
+}
+
+BOOST_AUTO_TEST_CASE(multiple_1)
 {
     std::vector<BibTeXEntry> e;
 
@@ -206,6 +222,30 @@ BOOST_AUTO_TEST_CASE(multiple)
         "   a = {b asd asd\nsecond line\nthird line adas das },\n"
         "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\""
+        "}";
+
+    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE_EQUAL(e.size(), 2);
+
+    BOOST_CHECK(e[0] == e[1]);
+}
+
+BOOST_AUTO_TEST_CASE(multiple_2)
+{
+    std::vector<BibTeXEntry> e;
+
+    const char test[] =
+        "@book{abc1,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\","
+        "   bcd-e = ack,"
+        "}"
+        "@book{abc2,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\","
+        "   bcd-e = ack,"
         "}";
 
     BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
