@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/assign.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -52,17 +53,21 @@ BOOST_AUTO_TEST_CASE(structure_1)
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
 
-    BOOST_CHECK_EQUAL(e.entries[0].second, "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
+        "b asd asd adas das ");
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
-    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
+        "d asd adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d");
-    BOOST_CHECK_EQUAL(e.entries[2].second, "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
+        "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[3].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[3].second, "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[3].second.front(),
+        "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(structure_2)
@@ -86,17 +91,21 @@ BOOST_AUTO_TEST_CASE(structure_2)
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
 
-    BOOST_CHECK_EQUAL(e.entries[0].second, "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
+        "b asd asd adas das ");
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
-    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
+        "d asd adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d");
-    BOOST_CHECK_EQUAL(e.entries[2].second, "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
+        "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[3].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[3].second, "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[3].second.front(),
+        "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(newline_comment_1)
@@ -121,14 +130,16 @@ BOOST_AUTO_TEST_CASE(newline_comment_1)
     BOOST_REQUIRE_EQUAL(e.entries.size(), 3);
 
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
-    BOOST_CHECK_EQUAL(e.entries[0].second,
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
         "b asd asd\nsecond line\nthird line adas das ");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "d");
-    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
+        "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[2].second, "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
+        "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(newline_comment_2)
@@ -152,14 +163,16 @@ BOOST_AUTO_TEST_CASE(newline_comment_2)
     BOOST_REQUIRE_EQUAL(e.entries.size(), 3);
 
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
-    BOOST_CHECK_EQUAL(e.entries[0].second,
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
         "b asd asd\nsecond line\nthird line adas das ");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
-    BOOST_CHECK_EQUAL(e.entries[1].second, "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
+        "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[2].second, "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
+        "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(missing_key)
@@ -179,7 +192,8 @@ BOOST_AUTO_TEST_CASE(missing_key)
     BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
 
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
-    BOOST_CHECK_EQUAL(e.entries[0].second, "aasdasd adas d");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
+        "aasdasd adas d");
 }
 
 BOOST_AUTO_TEST_CASE(empty)
@@ -224,7 +238,8 @@ BOOST_AUTO_TEST_CASE(special)
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
     BOOST_CHECK_EQUAL(e.entries[0].first, "b-test");
-    BOOST_CHECK_EQUAL(e.entries[0].second, "asd asdasd a");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
+        "asd asdasd a");
 }
 
 BOOST_AUTO_TEST_CASE(multiple_1)
@@ -315,8 +330,13 @@ BOOST_AUTO_TEST_CASE(separated)
     BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
     BOOST_REQUIRE_EQUAL(e.entries.size(), 7);
 
+    const bibtex::ValueVector values1 =
+        boost::assign::list_of("abc")("dfg")(" , ")("a");
+    const bibtex::ValueVector values2 =
+        boost::assign::list_of("last")(" one");
+
     BOOST_CHECK_EQUAL(e.entries[4].first, "more");
-    BOOST_CHECK_EQUAL(e.entries[4].second, "abc # dfg #  ,  # a");
+    BOOST_CHECK(e.entries[4].second == values1);
     BOOST_CHECK_EQUAL(e.entries[6].first, "last");
-    BOOST_CHECK_EQUAL(e.entries[6].second, "last #  one");
+    BOOST_CHECK(e.entries[6].second == values2);
 }

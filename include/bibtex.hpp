@@ -55,7 +55,8 @@
 
 namespace bibtex {
 
-typedef std::pair<std::string, std::string> KeyValue;
+typedef std::vector<std::string> ValueVector;
+typedef std::pair<std::string,  ValueVector> KeyValue;
 typedef std::vector<KeyValue> KeyValueVector;
 typedef boost::spirit::standard::space_type Space;
 
@@ -133,21 +134,14 @@ public:
 
         entry_
             = key_
-            [
-                ph::at_c<0>(_val) = _1
-            ]
+            //[
+            //    ph::at_c<0>(_val) = _1
+            //]
             >> '=' >> (value_ % '#')
-            [
-                ph::at_c<1>(_val) =
-                    ph::accumulate(_1, ph::construct<KeyValue::second_type>(),
-                        ph::lambda[
-                            ph::if_else(ph::empty(ph::arg_names::_1),
-                                ph::arg_names::_2,
-                                ph::arg_names::_1 + ph::val(" # ") +
-                                    ph::arg_names::_2)
-                        ]
-                    )
-            ]
+            //[
+            //    ph::for_each(_1, ph::push_back(ph::at_c<1>(_val),
+            //        ph::arg_names::_1))
+            //]
             ;
 
         entries_ = -(entry_ % ',');
@@ -208,8 +202,14 @@ public:
             ]
             >> braceValue_
             [
-                ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1,
-                    ph::construct<KeyValue>(KeyValue::first_type(), _1))
+                ph::let(ph::local_names::_a =
+                    ph::construct<KeyValue::second_type>())
+                [
+                    ph::push_back(ph::local_names::_a, _1),
+                    ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1,
+                        ph::construct<KeyValue>(KeyValue::first_type(),
+                            ph::local_names::_a))
+                ]
             ]
             ;
 
