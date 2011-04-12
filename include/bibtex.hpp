@@ -68,7 +68,7 @@ typedef detail::encoding::space_type Space;
 
 BOOST_SPIRIT_AUTO(qi, space, detail::encoding::space |
     '%' >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol)
-    >> boost::spirit::qi::eol);
+    >> boost::spirit::qi::eol)
 
 /**
  * @brief Single BibTeX entry.
