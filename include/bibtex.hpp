@@ -55,16 +55,16 @@
 
 namespace bibtex {
 
-typedef std::vector<std::string> ValueVector;
-typedef std::pair<std::string,  ValueVector> KeyValue;
-typedef std::vector<KeyValue> KeyValueVector;
-typedef boost::spirit::standard::space_type Space;
-
 namespace detail {
 
 namespace encoding = boost::spirit::standard;
 
 } // namespace detail
+
+typedef std::vector<std::string> ValueVector;
+typedef std::pair<std::string,  ValueVector> KeyValue;
+typedef std::vector<KeyValue> KeyValueVector;
+typedef detail::encoding::space_type Space;
 
 BOOST_SPIRIT_AUTO(qi, space, detail::encoding::space |
     '%' >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol)
@@ -133,15 +133,7 @@ public:
             ;
 
         entry_
-            = key_
-            //[
-            //    ph::at_c<0>(_val) = _1
-            //]
-            >> '=' >> (value_ % '#')
-            //[
-            //    ph::for_each(_1, ph::push_back(ph::at_c<1>(_val),
-            //        ph::arg_names::_1))
-            //]
+            = key_ >> '=' >> value_ % '#'
             ;
 
         entries_ = -(entry_ % ',');
