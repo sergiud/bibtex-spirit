@@ -107,22 +107,18 @@ public:
 
         tag_ = +detail::encoding::alnum;
         entryKey_ = +(qi::char_ - ',');
-        key_ = +(~qi::char_("=,})"));
+        key_ = +~qi::char_("=,})");
 
         braceValue_
             = qi::lexeme
             [
-                '{'
-                    >> *((escapedBrace | qi::char_) - '}') >>
-                '}'
+                '{' >> *((escapedBrace | qi::char_) - '}') >> '}'
             ];
 
         quotedValue_
             = qi::lexeme
             [
-                '"'
-                    >> *((escapedQuote | qi::char_) - '"') >>
-                '"'
+                '"' >> *((escapedQuote | qi::char_) - '"') >> '"'
             ]
             | braceValue_
             ;
@@ -150,7 +146,11 @@ public:
 
         generic_
             =
-            '@' >> tag_[ph::at_c<0>(_val) = _1] >>
+            '@' >> tag_
+            [
+                ph::at_c<0>(_val) = _1
+            ]
+            >>
             (
                 ('{' >> body_ >> '}')
                 |
