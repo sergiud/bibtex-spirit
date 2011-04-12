@@ -132,8 +132,12 @@ public:
             | +~qi::char_(",})#")
             ;
 
+        values_
+            = value_ % '#'
+            ;
+
         entry_
-            = key_ >> '=' >> value_ % '#'
+            = key_ >> '=' >> values_
             ;
 
         entries_ = -(entry_ % ',');
@@ -168,13 +172,14 @@ public:
                 ]
             ]
             >>
-            '{'
-                >> entry_
-                [
-                    ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1, _1)
-                ]
-                >>
-            '}'
+            (
+                ('{' >> entry_ >> '}')
+                |
+                ('(' >> entry_ >> ')')
+            )
+            [
+                ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1, _1)
+            ]
             ;
 
         simple_
@@ -192,16 +197,15 @@ public:
                     ph::at_c<0>(_val) = _1
                 ]
             ]
-            >> braceValue_
+            >>
+            (
+                ('{' >> values_ >> '}')
+                |
+                ('(' >> values_ >> ')')
+            )
             [
-                ph::let(ph::local_names::_a =
-                    ph::construct<KeyValue::second_type>())
-                [
-                    ph::push_back(ph::local_names::_a, _1),
-                    ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1,
-                        ph::construct<KeyValue>(KeyValue::first_type(),
-                            ph::local_names::_a))
-                ]
+                ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1,
+                    ph::construct<KeyValue>(KeyValue::first_type(), _1))
             ]
             ;
 
@@ -221,6 +225,7 @@ private:
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> simple_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
     boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
+    boost::spirit::qi::rule<InputIterator, ValueVector(), Skipper> values_;
     boost::spirit::qi::rule<InputIterator,
         boost::fusion::vector<boost::optional<std::string>,
         KeyValueVector>(), Skipper> body_;
