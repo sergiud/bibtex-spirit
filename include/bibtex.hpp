@@ -113,7 +113,7 @@ public:
             = qi::lexeme
             [
                 '{'
-                    >> *(escapedBrace | qi::char_ - '}') >>
+                    >> *((escapedBrace | qi::char_) - '}') >>
                 '}'
             ];
 
@@ -121,7 +121,7 @@ public:
             = qi::lexeme
             [
                 '"'
-                    >> *(escapedQuote | qi::char_ - '"') >>
+                    >> *((escapedQuote | qi::char_) - '"') >>
                 '"'
             ]
             | braceValue_

@@ -20,6 +20,7 @@
 
 #define BOOST_TEST_MODULE BibTeX
 
+#include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <vector>
@@ -42,4 +43,6 @@ int main(int argc, char** argv)
     std::vector<BibTeXEntry> e;
 
     bool result = parse(istream_iterator(in), istream_iterator(), e);
+
+    return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
