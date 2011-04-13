@@ -90,9 +90,9 @@ inline bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs)
         lhs.entries == rhs.entries;
 }
 
-template <class InputIterator, class Skipper>
+template <class ForwardIterator, class Skipper>
 class BibTeXParser
-    : public boost::spirit::qi::grammar<InputIterator, BibTeXEntry(), Skipper>
+    : public boost::spirit::qi::grammar<ForwardIterator, BibTeXEntry(), Skipper>
 {
 public:
     BibTeXParser()
@@ -251,20 +251,21 @@ public:
     }
 
 private:
-    typedef boost::spirit::qi::rule<InputIterator, std::string(), Skipper>
+    typedef boost::spirit::qi::rule<ForwardIterator, std::string(), Skipper>
         StringRule;
 
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> generic_;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> include_;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> simple_;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> start_;
-    boost::spirit::qi::rule<InputIterator, BibTeXEntry(), Skipper> string_;
-    boost::spirit::qi::rule<InputIterator, ValueVector(), Skipper> values_;
-    boost::spirit::qi::rule<InputIterator,
+    boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> generic_;
+    boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> include_;
+    boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> simple_;
+    boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> start_;
+    boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> string_;
+    boost::spirit::qi::rule<ForwardIterator, ValueVector(), Skipper> values_;
+    boost::spirit::qi::rule<ForwardIterator,
         boost::fusion::vector<boost::optional<std::string>,
         KeyValueVector>(), Skipper> body_;
-    boost::spirit::qi::rule<InputIterator, KeyValue(), Skipper> entry_;
-    boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries_;
+    boost::spirit::qi::rule<ForwardIterator, KeyValue(), Skipper> entry_;
+    boost::spirit::qi::rule<ForwardIterator, KeyValueVector(), Skipper>
+        entries_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
     StringRule quoted_;
@@ -272,12 +273,12 @@ private:
     StringRule key_;
     StringRule tag_;
     StringRule value_;
-    boost::spirit::qi::rule<InputIterator, std::string()> escape_;
+    boost::spirit::qi::rule<ForwardIterator, std::string()> escape_;
 };
 
-template <class InputIterator, class Container, class Skipper>
+template <class ForwardIterator, class Container, class Skipper>
 class BibTeXContainerParser
-    : public boost::spirit::qi::grammar<InputIterator, Container(), Skipper>
+    : public boost::spirit::qi::grammar<ForwardIterator, Container(), Skipper>
 {
 public:
     BibTeXContainerParser()
@@ -287,24 +288,24 @@ public:
     }
 
 private:
-    BibTeXParser<InputIterator, Skipper> parser_;
-    boost::spirit::qi::rule<InputIterator, Container(), Skipper> start_;
+    BibTeXParser<ForwardIterator, Skipper> parser_;
+    boost::spirit::qi::rule<ForwardIterator, Container(), Skipper> start_;
 };
 
-template<class InputIterator, class Skipper>
-inline bool parse(InputIterator first, InputIterator last, Skipper& skipper,
+template<class ForwardIterator, class Skipper>
+inline bool parse(ForwardIterator first, ForwardIterator last, Skipper& skipper,
                   BibTeXEntry& entry)
 {
-    BibTeXParser<InputIterator, Skipper> parser;
+    BibTeXParser<ForwardIterator, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper, entry);
 }
 
-template<class InputIterator, class Skipper, class Container>
-inline bool parse(InputIterator first, InputIterator last, Skipper& skipper,
+template<class ForwardIterator, class Skipper, class Container>
+inline bool parse(ForwardIterator first, ForwardIterator last, Skipper& skipper,
     Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
-    BibTeXContainerParser<InputIterator, Container, Skipper> parser;
+    BibTeXContainerParser<ForwardIterator, Container, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper,
         entries);
 }
@@ -323,15 +324,16 @@ inline bool parse(SinglePassRange range, Skipper& skipper, Container& entries,
     return parse(boost::const_begin(range), boost::const_end(range), entries);
 }
 
-template<class InputIterator>
-inline bool parse(InputIterator first, InputIterator last, BibTeXEntry& entry)
+template<class ForwardIterator>
+inline bool parse(ForwardIterator first, ForwardIterator last,
+                  BibTeXEntry& entry)
 {
     return parse(first, last, bibtex::space, entry);
 }
 
-template<class InputIterator, class Container>
-inline bool parse(InputIterator first, InputIterator last, Container& entries,
-    boost::enable_if<boost::is_same<
+template<class ForwardIterator, class Container>
+inline bool parse(ForwardIterator first, ForwardIterator last,
+    Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
     return parse(first, last, bibtex::space, entries);
