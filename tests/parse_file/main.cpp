@@ -18,31 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#define BOOST_TEST_MODULE BibTeX
-
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <vector>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/range.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
-#include <boost/test/unit_test.hpp>
 
 #include "bibtex.hpp"
 
 int main(int argc, char** argv)
 {
+    if (argc != 2) {
+        std::cerr << "Not enough arguments" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::ifstream in(argv[1]);
+
+    if (!in) {
+        std::cerr << "Could not open " << argv[1] << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    in.unsetf(std::ios_base::skipws);
+
     using bibtex::BibTeXEntry;
     using boost::spirit::istream_iterator;
 
-    std::ifstream in("test.bib");
-    in.unsetf(std::ios_base::skipws);
+    typedef std::vector<BibTeXEntry> BibTeXEntryVector;
 
-    std::vector<BibTeXEntry> e;
+    BibTeXEntryVector e;
+    const BibTeXEntryVector::size_type expected = 1151;
 
     bool result = parse(istream_iterator(in), istream_iterator(), e);
 
-    return result ? EXIT_SUCCESS : EXIT_FAILURE;
+    return result && e.size() == expected ? EXIT_SUCCESS : EXIT_FAILURE;
 }
