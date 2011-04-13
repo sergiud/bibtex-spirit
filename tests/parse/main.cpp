@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(structure_1)
     const char test[] =
         "@article{boa:12,"
         "   a = {b asd asd adas das },"
-        "   c = {d asd adasd a},"
+        "   c = \"d asd { \" }adasd{ \" } a\","
         "   d = {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\""
         "}";
@@ -53,21 +53,17 @@ BOOST_AUTO_TEST_CASE(structure_1)
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
 
-    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
-        "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(), "b asd asd adas das ");
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
-    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
-        "d asd adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(), "d asd  \" adasd \"  a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d");
-    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
-        "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(), "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[3].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[3].second.front(),
-        "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[3].second.front(), "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(structure_2)
@@ -91,21 +87,17 @@ BOOST_AUTO_TEST_CASE(structure_2)
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 4);
 
-    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
-        "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(), "b asd asd adas das ");
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
-    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
-        "d asd adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(), "d asd adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d");
-    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
-        "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(), "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[3].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[3].second.front(),
-        "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[3].second.front(), "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(newline_comment_1)
@@ -134,12 +126,10 @@ BOOST_AUTO_TEST_CASE(newline_comment_1)
         "b asd asd\nsecond line\nthird line adas das ");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "d");
-    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
-        "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(), "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
-        "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(), "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(newline_comment_2)
@@ -167,12 +157,10 @@ BOOST_AUTO_TEST_CASE(newline_comment_2)
         "b asd asd\nsecond line\nthird line adas das ");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
-    BOOST_CHECK_EQUAL(e.entries[1].second.front(),
-        "d asd } adasd a");
+    BOOST_CHECK_EQUAL(e.entries[1].second.front(), "d asd } adasd a");
 
     BOOST_CHECK_EQUAL(e.entries[2].first, "d123");
-    BOOST_CHECK_EQUAL(e.entries[2].second.front(),
-        "test test\" aa");
+    BOOST_CHECK_EQUAL(e.entries[2].second.front(), "test test\" aa");
 }
 
 BOOST_AUTO_TEST_CASE(missing_key)
@@ -192,8 +180,7 @@ BOOST_AUTO_TEST_CASE(missing_key)
     BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
 
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
-    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
-        "aasdasd adas d");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(), "aasdasd adas d");
 }
 
 BOOST_AUTO_TEST_CASE(empty)
@@ -238,8 +225,7 @@ BOOST_AUTO_TEST_CASE(special)
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
     BOOST_CHECK_EQUAL(e.entries[0].first, "b-test");
-    BOOST_CHECK_EQUAL(e.entries[0].second.front(),
-        "asd asdasd a");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(), "asd asdasd a");
 }
 
 BOOST_AUTO_TEST_CASE(multiple_1)

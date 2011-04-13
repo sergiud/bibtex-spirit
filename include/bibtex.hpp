@@ -104,23 +104,48 @@ public:
 
         escapedBrace.add
             ("\\{", '{')
-            ("\\}", '}');
+            ("\\}", '}')
+            ;
         escapedQuote.add
             ("\\\"", '"')
-            ("{\"", '"')
-            ("\"}", '"');
+            ;
 
         tag_ = +detail::encoding::alnum;
         entryKey_ = +(qi::char_ - ',');
         key_ = +~qi::char_("=,})");
 
+        brace_
+            = '{' >> *((escapedBrace | qi::char_) - '}') >> '}'
+            ;
+
         quoted_
             = qi::lexeme
             [
-                ('"' >> *((escapedQuote | qi::char_) - '"') >> '"')
+                (
+                    '"'
+                    >>
+                        *qi::as_string
+                        [
+                            +(escapedQuote | ~qi::char_("{\""))
+                            |
+                            brace_
+                        ]
+                    >>
+                    '"'
+                )
+                [
+                    _val = ph::accumulate(_1, ph::construct<std::string>())
+                ]
                 |
-                ('{' >> *((escapedBrace | qi::char_) - '}') >> '}')
-            ];
+                qi::as_string
+                [
+                    ('{' >> *((escapedBrace | qi::char_) - '}') >> '}')
+                ]
+                [
+                    _val = _1
+                ]
+            ]
+            ;
 
         value_
             = quoted_
@@ -237,6 +262,7 @@ private:
     StringRule key_;
     StringRule tag_;
     StringRule value_;
+    boost::spirit::qi::rule<InputIterator, std::string()> brace_;
 };
 
 template <class InputIterator, class Container, class Skipper>

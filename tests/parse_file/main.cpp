@@ -24,15 +24,32 @@
 #include <iterator>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/optional.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
 
 #include "bibtex.hpp"
 
 int main(int argc, char** argv)
 {
-    if (argc != 2) {
+    if (argc < 2) {
         std::cerr << "Not enough arguments" << std::endl;
         return EXIT_FAILURE;
+    }
+
+    using bibtex::BibTeXEntry;
+
+    typedef std::vector<BibTeXEntry> BibTeXEntryVector;
+
+    boost::optional<BibTeXEntryVector::size_type> expected;
+
+    if (argc > 2) {
+        try {
+            expected = boost::lexical_cast<BibTeXEntryVector::size_type>
+                (argv[2]);
+        }
+        catch (boost::bad_lexical_cast&) {
+        }
     }
 
     std::ifstream in(argv[1]);
@@ -44,17 +61,14 @@ int main(int argc, char** argv)
 
     in.unsetf(std::ios_base::skipws);
 
-    using bibtex::BibTeXEntry;
     using boost::spirit::istream_iterator;
 
-    typedef std::vector<BibTeXEntry> BibTeXEntryVector;
-
     BibTeXEntryVector e;
-    const BibTeXEntryVector::size_type expected = 1151;
 
     bool result = parse(istream_iterator(in), istream_iterator(), e);
 
     std::cout << "Found " << e.size() << " entries" << std::endl;
 
-    return result && e.size() == expected ? EXIT_SUCCESS : EXIT_FAILURE;
+    return result && (!expected || e.size() == *expected) ?
+        EXIT_SUCCESS : EXIT_FAILURE;
 }
