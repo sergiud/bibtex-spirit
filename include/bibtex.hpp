@@ -109,22 +109,16 @@ public:
         entryKey_ = +(qi::char_ - ',');
         key_ = +~qi::char_("=,})");
 
-        braceValue_
+        quoted_
             = qi::lexeme
             [
-                '{' >> *((escapedBrace | qi::char_) - '}') >> '}'
+                ('"' >> *((escapedQuote | qi::char_) - '"') >> '"')
+                |
+                ('{' >> *((escapedBrace | qi::char_) - '}') >> '}')
             ];
 
-        quotedValue_
-            = qi::lexeme
-            [
-                '"' >> *((escapedQuote | qi::char_) - '"') >> '"'
-            ]
-            | braceValue_
-            ;
-
         value_
-            = quotedValue_
+            = quoted_
             | +~qi::char_(",})#")
             ;
 
@@ -233,10 +227,9 @@ private:
     boost::spirit::qi::rule<InputIterator, KeyValueVector(), Skipper> entries_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
-    StringRule braceValue_;
+    StringRule quoted_;
     StringRule entryKey_;
     StringRule key_;
-    StringRule quotedValue_;
     StringRule tag_;
     StringRule value_;
 };
