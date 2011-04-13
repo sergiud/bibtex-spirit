@@ -54,5 +54,7 @@ int main(int argc, char** argv)
 
     bool result = parse(istream_iterator(in), istream_iterator(), e);
 
+    std::cout << "Found " << e.size() << " entries" << std::endl;
+
     return result && e.size() == expected ? EXIT_SUCCESS : EXIT_FAILURE;
 }

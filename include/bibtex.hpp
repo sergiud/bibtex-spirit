@@ -102,8 +102,13 @@ public:
         namespace ph = boost::phoenix;
         namespace sn = detail::encoding;
 
-        escapedBrace.add("\\{", '{')("\\}", '}');
-        escapedQuote.add("\\\"", '"');
+        escapedBrace.add
+            ("\\{", '{')
+            ("\\}", '}');
+        escapedQuote.add
+            ("\\\"", '"')
+            ("{\"", '"')
+            ("\"}", '"');
 
         tag_ = +detail::encoding::alnum;
         entryKey_ = +(qi::char_ - ',');
