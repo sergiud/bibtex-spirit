@@ -115,21 +115,7 @@ public:
         key_ = +~qi::char_("=,})");
 
         escapedText_
-            = !qi::lit('{')
-            >>
-            +
-            (
-                (escapedBrace | ~qi::char_("{}"))
-            )
-            ;
-
-        text1_
-            = !qi::lit('{')
-            >>
-            +
-            (
-                (escapedBrace | ~qi::char_("{}"))
-            )
+            = !qi::lit('{') >> +(escapedBrace | ~qi::char_("{}"))
             ;
 
         quoteText_
@@ -156,7 +142,11 @@ public:
         innerQuoteText_
             %=
             (
-                qi::char_('{') >> *(innerQuoteText_ | text1_) >> qi::char_('}')
+                qi::char_('{')
+                >>
+                    *(innerQuoteText_ | escapedText_)
+                >>
+                qi::char_('}')
             )
             [
                 _val = _1 + ph::accumulate(_2, ph::construct<std::string>()) +
@@ -299,7 +289,6 @@ private:
     SimpleStringRule innerBraceText_;
     SimpleStringRule escapedText_;
     SimpleStringRule innerQuoteText_;
-    SimpleStringRule text1_;
     SimpleStringRule quoteText_;
 };
 
