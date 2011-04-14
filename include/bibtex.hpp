@@ -114,43 +114,64 @@ public:
         entryKey_ = +(qi::char_ - ',');
         key_ = +~qi::char_("=,})");
 
-        escape_
-            =
-            qi::char_('{')
+        escapedText_
+            = !qi::lit('{')
             >>
-                *((escapedBrace | qi::char_) - '}')
+            +
+            (
+                (escapedBrace | ~qi::char_("{}"))
+            )
+            ;
+
+        text1_
+            = !qi::lit('{')
             >>
-            qi::char_('}')
+            +
+            (
+                (escapedBrace | ~qi::char_("{}"))
+            )
+            ;
+
+        quoteText_
+            = +(escapedQuote | ~qi::char_("\"{}"))
+            ;
+
+        innerBraceText_
+            %=
+            (
+                qi::char_('{')
+                >>
+                    *(innerBraceText_ | escapedText_)
+                >>
+                qi::char_('}')
+            )
+            [
+                _val = _1 + ph::accumulate(_2, ph::construct<std::string>()) +
+                    _3
+            ]
+            |
+            escapedText_
+            ;
+
+        innerQuoteText_
+            %=
+            (
+                qi::char_('{') >> *(innerQuoteText_ | text1_) >> qi::char_('}')
+            )
+            [
+                _val = _1 + ph::accumulate(_2, ph::construct<std::string>()) +
+                    _3
+            ]
+            |
+            quoteText_
             ;
 
         quoted_
             = qi::lexeme
             [
-                (
-                    '"'
-                    >>
-                        *qi::as_string
-                        [
-                            +(escapedQuote | ~qi::char_("{\""))
-                            |
-                            escape_
-                        ]
-                    >>
-                    '"'
-                )
+                ( '"' >> *innerQuoteText_ >> '"' )
                 |
-                (
-                    '{'
-                    >>
-                        *qi::as_string
-                        [
-                            +(escapedBrace | ~qi::char_("{}"))
-                            |
-                            escape_
-                        ]
-                    >>
-                    '}'
-                )
+                ( '{' >> *innerBraceText_ >> '}' )
             ]
             [
                 _val = ph::accumulate(_1, ph::construct<std::string>())
@@ -253,6 +274,8 @@ public:
 private:
     typedef boost::spirit::qi::rule<ForwardIterator, std::string(), Skipper>
         StringRule;
+    typedef boost::spirit::qi::rule<ForwardIterator, std::string()>
+        SimpleStringRule;
 
     boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> generic_;
     boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> include_;
@@ -273,7 +296,11 @@ private:
     StringRule key_;
     StringRule tag_;
     StringRule value_;
-    boost::spirit::qi::rule<ForwardIterator, std::string()> escape_;
+    SimpleStringRule innerBraceText_;
+    SimpleStringRule escapedText_;
+    SimpleStringRule innerQuoteText_;
+    SimpleStringRule text1_;
+    SimpleStringRule quoteText_;
 };
 
 template <class ForwardIterator, class Container, class Skipper>

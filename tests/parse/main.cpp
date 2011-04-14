@@ -38,11 +38,12 @@ BOOST_AUTO_TEST_CASE(structure_1)
 
     const char test[] =
         "@article{boa:12,"
-        "   a = {b asd asd adas das },"
+        "   a = {b asd {a{s}d} adas das },"
         "   c = \"d asd { \" }adasd{ \" } a\","
         "   d = {d asd \\} adasd a},"
         "   d123 = \"test test\\\" aa\","
-        "   e = {b {asd} asd adas das }"
+        "   e = {b {asd} asd adas das },"
+        "   f = {{b {asd {asd} adas} das }},"
         "}";
 
     BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
@@ -52,9 +53,9 @@ BOOST_AUTO_TEST_CASE(structure_1)
     BOOST_CHECK(!!e.key);
     BOOST_CHECK_EQUAL(*e.key, "boa:12");
 
-    BOOST_REQUIRE_EQUAL(e.entries.size(), 5);
+    BOOST_REQUIRE_EQUAL(e.entries.size(), 6);
 
-    BOOST_CHECK_EQUAL(e.entries[0].second.front(), "b asd asd adas das ");
+    BOOST_CHECK_EQUAL(e.entries[0].second.front(), "b asd {a{s}d} adas das ");
     BOOST_CHECK_EQUAL(e.entries[0].first, "a");
 
     BOOST_CHECK_EQUAL(e.entries[1].first, "c");
@@ -68,6 +69,9 @@ BOOST_AUTO_TEST_CASE(structure_1)
 
     BOOST_CHECK_EQUAL(e.entries[4].first, "e");
     BOOST_CHECK_EQUAL(e.entries[4].second.front(), "b {asd} asd adas das ");
+
+    BOOST_CHECK_EQUAL(e.entries[5].first, "f");
+    BOOST_CHECK_EQUAL(e.entries[5].second.front(), "{b {asd {asd} adas} das }");
 }
 
 BOOST_AUTO_TEST_CASE(structure_2)
