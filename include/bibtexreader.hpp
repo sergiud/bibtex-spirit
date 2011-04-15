@@ -20,75 +20,23 @@
 
 /**
  * @brief Boost.Spirit v2 based BibTeX parser.
- * @file bibtex.hpp
+ * @file bibtexreader.hpp
  * @author Sergiu Dotenco
  */
 
-#ifndef BIBTEX_HPP
-#define BIBTEX_HPP
+#ifndef BIBTEXREADER_HPP
+#define BIBTEXREADER_HPP
 
 #pragma once
 
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/include/vector.hpp>
-#include <boost/operators.hpp>
-#include <boost/optional.hpp>
 #include <boost/range.hpp>
 #include <boost/spirit/include/phoenix.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/typeof/typeof.hpp>
 #include <boost/utility/enable_if.hpp>
 
-#ifndef BOOST_SPIRIT_AUTO
-#define BOOST_SPIRIT_AUTO(domain_, name, expr)                \
-    typedef boost::proto::result_of::                         \
-        deep_copy<BOOST_TYPEOF(expr)>::type name##_expr_type; \
-    BOOST_SPIRIT_ASSERT_MATCH(                                \
-        boost::spirit::domain_::domain, name##_expr_type);    \
-    BOOST_AUTO(name, boost::proto::deep_copy(expr));
-#endif // BOOST_SPIRIT_AUTO
+#include "bibtexentry.hpp"
 
 namespace bibtex {
-
-namespace detail {
-
-namespace encoding = boost::spirit::standard;
-
-} // namespace detail
-
-typedef std::vector<std::string> ValueVector;
-typedef std::pair<std::string,  ValueVector> KeyValue;
-typedef std::vector<KeyValue> KeyValueVector;
-typedef detail::encoding::space_type Space;
-
-BOOST_SPIRIT_AUTO(qi, space, detail::encoding::space |
-    '%' >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol)
-    >> boost::spirit::qi::eol)
-
-/**
- * @brief Single BibTeX entry.
- */
-struct BibTeXEntry
-    : boost::equality_comparable<BibTeXEntry>
-{
-    //! Entry's tag.
-    std::string tag;
-    //! Entry's optional key.
-    boost::optional<std::string> key;
-    //! Entry's key/value pairs.
-    KeyValueVector entries;
-};
-
-inline bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs)
-{
-    return lhs.tag == rhs.tag && lhs.tag == rhs.tag &&
-        lhs.entries == rhs.entries;
-}
 
 template <class ForwardIterator, class Skipper>
 class BibTeXParser
@@ -369,11 +317,4 @@ inline bool parse(SinglePassRange range, Container& entries)
 
 } // namespace bibtex
 
-BOOST_FUSION_ADAPT_STRUCT(
-    bibtex::BibTeXEntry,
-    (std::string, tag)
-    (boost::optional<std::string>, key)
-    (bibtex::KeyValueVector, entries)
-)
-
-#endif // BIBTEX_HPP
+#endif // BIBTEXREADER_HPP

@@ -27,7 +27,7 @@
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "bibtex.hpp"
+#include "bibtexreader.hpp"
 
 using bibtex::BibTeXEntry;
 using boost::algorithm::iequals;

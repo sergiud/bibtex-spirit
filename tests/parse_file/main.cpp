@@ -28,7 +28,7 @@
 #include <boost/optional.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
 
-#include "bibtex.hpp"
+#include "bibtexreader.hpp"
 
 int main(int argc, char** argv)
 {
