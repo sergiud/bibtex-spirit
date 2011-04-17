@@ -22,14 +22,12 @@
 
 #include <vector>
 
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/assign.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "bibtexreader.hpp"
 
 using bibtex::BibTeXEntry;
-using boost::algorithm::iequals;
 
 BOOST_AUTO_TEST_CASE(structure_1)
 {
@@ -47,7 +45,7 @@ BOOST_AUTO_TEST_CASE(structure_1)
 
     BOOST_REQUIRE(read(test, e));
 
-    BOOST_CHECK(iequals(e.tag, "article"));
+    BOOST_CHECK_EQUAL(e.tag, "article");
 
     BOOST_CHECK(!!e.key);
     BOOST_CHECK_EQUAL(*e.key, "boa:12");
@@ -87,7 +85,7 @@ BOOST_AUTO_TEST_CASE(structure_2)
 
     BOOST_REQUIRE(read(test, e));
 
-    BOOST_CHECK(iequals(e.tag, "article"));
+    BOOST_CHECK_EQUAL(e.tag, "article");
 
     BOOST_CHECK(!!e.key);
     BOOST_CHECK_EQUAL(*e.key, "boa12");
@@ -121,7 +119,7 @@ BOOST_AUTO_TEST_CASE(newline_comment_1)
 
     BOOST_REQUIRE(read(test, e));
 
-    BOOST_CHECK(iequals(e.tag, "book"));
+    BOOST_CHECK_EQUAL(e.tag, "book");
 
     BOOST_CHECK(!!e.key);
     BOOST_CHECK_EQUAL(*e.key, "abc1");
@@ -152,7 +150,7 @@ BOOST_AUTO_TEST_CASE(newline_comment_2)
 
     BOOST_REQUIRE(read(test, e));
 
-    BOOST_CHECK(iequals(e.tag, "book"));
+    BOOST_CHECK_EQUAL(e.tag, "book");
 
     BOOST_CHECK(!!e.key);
     BOOST_CHECK_EQUAL(*e.key, "abc1");
@@ -181,7 +179,7 @@ BOOST_AUTO_TEST_CASE(missing_key)
 
     BOOST_REQUIRE(read(test, e));
 
-    BOOST_CHECK(iequals(e.tag, "book"));
+    BOOST_CHECK_EQUAL(e.tag, "book");
     BOOST_CHECK(!e.key);
 
     BOOST_REQUIRE_EQUAL(e.entries.size(), 1);
@@ -200,7 +198,7 @@ BOOST_AUTO_TEST_CASE(empty)
 
     BOOST_REQUIRE(read(test, e));
 
-    BOOST_CHECK(iequals(e.tag, "book"));
+    BOOST_CHECK_EQUAL(e.tag, "book");
     BOOST_CHECK(!e.key);
 
     BOOST_REQUIRE(e.entries.empty());
