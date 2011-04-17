@@ -15,8 +15,8 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 /**
  * @brief Boost.Spirit v2 based BibTeX parser.
@@ -29,22 +29,32 @@
 
 #pragma once
 
+#include <istream>
+
 #include <boost/fusion/include/vector.hpp>
+#include <boost/io/ios_state.hpp>
 #include <boost/range.hpp>
 #include <boost/spirit/include/phoenix.hpp>
+#include <boost/spirit/include/support_istream_iterator.hpp>
 #include <boost/utility/enable_if.hpp>
 
 #include "bibtexentry.hpp"
 
 namespace bibtex {
 
+/**
+ * @brief Single BibTeX entry reader.
+ *
+ * @tparam ForwardIterator Input sequence iterator type.
+ * @tparam Skipper Skipper type.
+ */
 template <class ForwardIterator, class Skipper>
-class BibTeXParser
+class BibTeXReader
     : public boost::spirit::qi::grammar<ForwardIterator, BibTeXEntry(), Skipper>
 {
 public:
-    BibTeXParser()
-        : BibTeXParser::base_type(start_, "single BibTeX entry")
+    BibTeXReader()
+        : BibTeXReader::base_type(start_, "single BibTeX entry")
     {
         using namespace boost::spirit;
         namespace ph = boost::phoenix;
@@ -240,79 +250,111 @@ private:
     SimpleStringRule quoteText_;
 };
 
+/**
+ * @brief Multiple BibTeX entries reader.
+ *
+ * @tparam ForwardIterator Input sequence iterator type.
+ * @tparam Container Container type that will contain the entries.
+ * @tparam Skipper Skipper type.
+ */
 template <class ForwardIterator, class Container, class Skipper>
-class BibTeXContainerParser
+class BibTeXContainerReader
     : public boost::spirit::qi::grammar<ForwardIterator, Container(), Skipper>
 {
 public:
-    BibTeXContainerParser()
-        : BibTeXContainerParser::base_type(start_, "multiple BibTeX entries")
+    BibTeXContainerReader()
+        : BibTeXContainerReader::base_type(start_, "multiple BibTeX entries")
     {
         start_ = *parser_;
     }
 
 private:
-    BibTeXParser<ForwardIterator, Skipper> parser_;
+    BibTeXReader<ForwardIterator, Skipper> parser_;
     boost::spirit::qi::rule<ForwardIterator, Container(), Skipper> start_;
 };
 
 template<class ForwardIterator, class Skipper>
-inline bool parse(ForwardIterator first, ForwardIterator last, Skipper& skipper,
+inline bool read(ForwardIterator first, ForwardIterator last, Skipper& skipper,
                   BibTeXEntry& entry)
 {
-    BibTeXParser<ForwardIterator, Skipper> parser;
+    BibTeXReader<ForwardIterator, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper, entry);
 }
 
 template<class ForwardIterator, class Skipper, class Container>
-inline bool parse(ForwardIterator first, ForwardIterator last, Skipper& skipper,
+inline bool read(ForwardIterator first, ForwardIterator last, Skipper& skipper,
     Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
-    BibTeXContainerParser<ForwardIterator, Container, Skipper> parser;
+    BibTeXContainerReader<ForwardIterator, Container, Skipper> parser;
     return boost::spirit::qi::phrase_parse(first, last, parser, skipper,
         entries);
 }
 
 template<class SinglePassRange, class Skipper>
-inline bool parse(SinglePassRange range, Skipper& skipper, BibTeXEntry& entry)
+inline bool read(const SinglePassRange& range, Skipper& skipper,
+                 BibTeXEntry& entry)
 {
-    return parse(boost::const_begin(range), boost::const_end(range), entry);
+    return read(boost::const_begin(range), boost::const_end(range), entry);
 }
 
 template<class SinglePassRange, class Skipper, class Container>
-inline bool parse(SinglePassRange range, Skipper& skipper, Container& entries,
-    boost::enable_if<boost::is_same<
+inline bool read(const SinglePassRange& range, Skipper& skipper,
+    Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* dummy = NULL)
 {
-    return parse(boost::const_begin(range), boost::const_end(range), entries);
+    return read(boost::const_begin(range), boost::const_end(range), entries);
 }
 
 template<class ForwardIterator>
-inline bool parse(ForwardIterator first, ForwardIterator last,
-                  BibTeXEntry& entry)
+inline bool read(ForwardIterator first, ForwardIterator last,
+                 BibTeXEntry& entry)
 {
-    return parse(first, last, bibtex::space, entry);
+    return read(first, last, bibtex::space, entry);
 }
 
 template<class ForwardIterator, class Container>
-inline bool parse(ForwardIterator first, ForwardIterator last,
+inline bool read(ForwardIterator first, ForwardIterator last,
     Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
-    return parse(first, last, bibtex::space, entries);
+    return read(first, last, bibtex::space, entries);
 }
 
 template<class SinglePassRange>
-inline bool parse(SinglePassRange range, BibTeXEntry& entry)
+inline bool read(const SinglePassRange& range, BibTeXEntry& entry,
+    typename boost::enable_if<
+        boost::has_range_iterator<SinglePassRange> >::type* /*dummy*/ = NULL)
 {
-    return parse(range, bibtex::space, entry);
+    return read(range, bibtex::space, entry);
 }
 
 template<class SinglePassRange, class Container>
-inline bool parse(SinglePassRange range, Container& entries)
+inline bool read(const SinglePassRange& range, Container& entries,
+    typename boost::enable_if<
+        boost::has_range_iterator<SinglePassRange> >::type* /*dummy*/ = NULL)
 {
-    return parse(range, bibtex::space, entries);
+    return read(range, bibtex::space, entries);
+}
+
+template<class E, class T>
+inline bool read(std::basic_istream<E, T>& in, BibTeXEntry& e)
+{
+    boost::io::ios_flags_saver saver(in);
+    in.unsetf(std::ios_base::skipws);
+
+    typedef boost::spirit::basic_istream_iterator<E> istream_iterator;
+    return read(istream_iterator(in), istream_iterator(), e);
+}
+
+template<class E, class T, class Container>
+inline bool read(std::basic_istream<E, T>& in, Container& entries)
+{
+    boost::io::ios_flags_saver saver(in);
+    in.unsetf(std::ios_base::skipws);
+
+    typedef boost::spirit::basic_istream_iterator<E> istream_iterator;
+    return read(istream_iterator(in), istream_iterator(), entries);
 }
 
 } // namespace bibtex

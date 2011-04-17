@@ -15,18 +15,16 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <iterator>
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
-#include <boost/spirit/include/support_istream_iterator.hpp>
 
 #include "bibtexreader.hpp"
 
@@ -59,13 +57,8 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    in.unsetf(std::ios_base::skipws);
-
-    using boost::spirit::istream_iterator;
-
     BibTeXEntryVector e;
-
-    bool result = parse(istream_iterator(in), istream_iterator(), e);
+    bool result = read(in, e);
 
     std::cout << "Found " << e.size() << " entries" << std::endl;
 

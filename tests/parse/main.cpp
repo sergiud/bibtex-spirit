@@ -15,8 +15,8 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #define BOOST_TEST_MODULE BibTeX
 
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(structure_1)
         "   f = {{b {asd {asd} adas} das }},"
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "article"));
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(structure_2)
         "   d123 = \"test test\\\" aa\""
         ")";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "article"));
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(newline_comment_1)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
 
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(newline_comment_2)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
 
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(missing_key)
         "   a = \"aasdasd adas d\""
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
     BOOST_CHECK(!e.key);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(empty)
         "@book{,"
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(iequals(e.tag, "book"));
     BOOST_CHECK(!e.key);
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(comparison)
         "@book{,"
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK(e == e);
 }
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(special)
     const char test[] =
         "@string{b-test = \"asd asdasd a\" }";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
 
     BOOST_CHECK_EQUAL(e.tag, "string");
 
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(multiple_1)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
 
     BOOST_CHECK(e[0] == e[1]);
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(multiple_2)
         "   bcd-e = ack,"
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
 
     BOOST_CHECK(e[0] == e[1]);
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(mixed_multiple)
         "   d123 = \"test test\\\" aa\""
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
 
     BOOST_CHECK(e[0] == e[1]);
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(separated)
         "   last = \"last\" # { one}"
         "}";
 
-    BOOST_REQUIRE(parse(boost::make_iterator_range(test), e));
+    BOOST_REQUIRE(read(boost::make_iterator_range(test), e));
     BOOST_REQUIRE_EQUAL(e.entries.size(), 7);
 
     const bibtex::ValueVector values1 =
