@@ -181,7 +181,7 @@ public:
                 ('(' >> entry_ >> ')')
             )
             [
-                ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1, _1)
+                ph::assign(ph::bind(&BibTeXEntry::fields, _val), 1, _1)
             ]
             ;
 
@@ -207,7 +207,7 @@ public:
                 ('(' >> values_ >> ')')
             )
             [
-                ph::assign(ph::bind(&BibTeXEntry::entries, _val), 1,
+                ph::assign(ph::bind(&BibTeXEntry::fields, _val), 1,
                     ph::construct<KeyValue>(KeyValue::first_type(), _1))
             ]
             ;

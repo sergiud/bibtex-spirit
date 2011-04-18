@@ -77,13 +77,13 @@ struct BibTeXEntry
     //! Entry's optional key.
     boost::optional<std::string> key;
     //! Entry's key/value pairs.
-    KeyValueVector entries;
+    KeyValueVector fields;
 };
 
 inline bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs)
 {
     return lhs.tag == rhs.tag && lhs.tag == rhs.tag &&
-        lhs.entries == rhs.entries;
+        lhs.fields == rhs.fields;
 }
 
 } // namespace bibtex
@@ -92,7 +92,7 @@ BOOST_FUSION_ADAPT_STRUCT(
     bibtex::BibTeXEntry,
     (std::string, tag)
     (boost::optional<std::string>, key)
-    (bibtex::KeyValueVector, entries)
+    (bibtex::KeyValueVector, fields)
 )
 
 #endif // BIBTEXENTRY_HPP
