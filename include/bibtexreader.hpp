@@ -291,15 +291,15 @@ inline bool read(ForwardIterator first, ForwardIterator last, Skipper& skipper,
         entries);
 }
 
-template<class SinglePassRange, class Skipper>
-inline bool read(const SinglePassRange& range, Skipper& skipper,
+template<class ForwardRange, class Skipper>
+inline bool read(const ForwardRange& range, Skipper& skipper,
                  BibTeXEntry& entry)
 {
     return read(boost::const_begin(range), boost::const_end(range), entry);
 }
 
-template<class SinglePassRange, class Skipper, class Container>
-inline bool read(const SinglePassRange& range, Skipper& skipper,
+template<class ForwardRange, class Skipper, class Container>
+inline bool read(const ForwardRange& range, Skipper& skipper,
     Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* dummy = NULL)
 {
@@ -321,18 +321,18 @@ inline bool read(ForwardIterator first, ForwardIterator last,
     return read(first, last, bibtex::space, entries);
 }
 
-template<class SinglePassRange>
-inline bool read(const SinglePassRange& range, BibTeXEntry& entry,
+template<class ForwardRange>
+inline bool read(const ForwardRange& range, BibTeXEntry& entry,
     typename boost::enable_if<
-        boost::has_range_iterator<SinglePassRange> >::type* /*dummy*/ = NULL)
+        boost::has_range_iterator<ForwardRange> >::type* /*dummy*/ = NULL)
 {
     return read(range, bibtex::space, entry);
 }
 
-template<class SinglePassRange, class Container>
-inline bool read(const SinglePassRange& range, Container& entries,
+template<class ForwardRange, class Container>
+inline bool read(const ForwardRange& range, Container& entries,
     typename boost::enable_if<
-        boost::has_range_iterator<SinglePassRange> >::type* /*dummy*/ = NULL)
+        boost::has_range_iterator<ForwardRange> >::type* /*dummy*/ = NULL)
 {
     return read(range, bibtex::space, entries);
 }
