@@ -9,7 +9,8 @@ BibTeX C++ parser library
 -------------------------
 
 :Author:    Sergiu Dotenco
-:Date:      April 17, 2011
+:Date:      April 18, 2011
+:Version:   0.1
 :Copyright: This document is placed in the public domain.
 
 .. contents::
@@ -19,8 +20,8 @@ What is bibtex-spirit?
 ======================
 
 bibtex-spirit is a header-only C++ BibTeX_ parser library based on Boost.Spirit_
-and released under the MIT license. The latest version can be found at
-https://bitbucket.org/sergiu/bibtex-spirit.
+and released under the MIT license. The latest version of the library can be
+found at https://bitbucket.org/sergiu/bibtex-spirit.
 
 .. _BibTeX:
   http://en.wikipedia.org/wiki/BibTeX
@@ -38,9 +39,9 @@ is installed first, then enter ::
 
   $ cmake <dir> -DCMAKE_BUILD_TYPE=Release
 
-in the command prompt, ``<dir>`` being the bibtex-spirit's source directory.
-CMake will generate the appropriate configuration that can be used to compile
-the tests using make/nmake or inside an IDE.
+in the command prompt, ``<dir>`` being bibtex-spirit's source directory.  CMake
+will generate the appropriate configuration that can be used to compile the
+tests using make/nmake or inside an IDE.
 
 .. _Boost:
   http://www.boost.org/
@@ -52,7 +53,14 @@ the tests using make/nmake or inside an IDE.
 Using the library
 =================
 
-Reading BibTeX files is really easy. Just open an input stream and pass it to
+To use the library just copy the headers from the ``include`` directory to a
+location, where the compiler can find them.
+
+
+Reading entries
+---------------
+
+Reading BibTeX bibliographies is easy. Just open an input stream and pass it to
 the ``read`` function together with a container of ``bibtex::BibTeXEntry``
 objects as shown below. After the call the container will contain all the
 entries that have been successfully read.
@@ -89,6 +97,8 @@ type of input streams and even from iterator ranges [#]_. This allows, for
 instance, to parse bibliographies that are located in memory instead of in a
 file:
 
+.. _string-example:
+
 .. code-block:: c++
 
   #include <string>
@@ -105,7 +115,9 @@ The above ``read`` call can be shortened using
   read(text, e);
 
 To indicate that the bibliography being parsed contains syntax errors the
-``read`` function will return ``false``.
+``read`` function will return ``false``. For instance, unexpected characters
+between bibliography entries (TeX comments excluded) are treated as syntax
+errors.
 
 .. code-block:: c++
 
@@ -116,6 +128,82 @@ To indicate that the bibliography being parsed contains syntax errors the
   }
 
 
+The BibTeXEntry structure
+-------------------------
+
+The members of the ``BibTeXEntry`` structure defined in the ``bibtex`` namespace
+as |BibTeXEntry|
+
+.. |BibTeXEntry| code-block:: c++
+
+    struct BibTeXEntry
+    {
+        std::string tag;
+        boost::optional<std::string> key;
+        KeyValueVector fields;
+    };
+
+
+have the following meanings.
+
+tag
+  The tag of a BibTeX entry that identifies its type. For example, the tag of
+  the entry ::
+    
+    @string{IEEE = {IEEE Computer Society}} 
+    
+  seen previously has the value ``string``.
+
+key
+  *Optional* entry key. BibTeX entry types ``string``, ``preamble`` and
+  ``comment``, for instance, don't have a key.
+
+fields
+  A vector of key/value pairs that identify the fields of a BibTeX entry. The
+  key contains the name of a field and the value a vector of strings. In most
+  cases the value vector will contain just a single element.  Multiple value
+  strings can occur if field's value consists of several strings separated by
+  ``#``, as in::
+
+    month = jan # ", " # feb
+
+
 .. [#] Iterators passed to the ``read`` function have to be *forward* iterators.
 
-.. vi: sw=2 ts=2 tw=80 et ft=rst fenc=utf-8
+
+Reference
+=========
+
+.. code-block:: c++
+
+  typedef std::vector<std::string> ValueVector;
+  typedef std::pair<std::string,  ValueVector> KeyValue;
+  typedef std::vector<KeyValue> KeyValueVector;  
+
+|BibTeXEntry|
+
+.. code-block:: c++
+
+  bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs);
+  bool operator!=(const BibTeXEntry& lhs, const BibTeXEntry& rhs);
+
+  template<ForwardIterator>
+  bool read(ForwardIterator first, ForwardIterator last, BibTeXEntry& e);
+
+  template<ForwardRange>
+  bool read(const ForwardRange& range, BibTeXEntry& e);
+
+  template<class E, class T>
+  bool read(std::basic_istream<E, T>& in, BibTeXEntry& e);
+
+  template<ForwardIterator, class Container>
+  bool read(ForwardIterator first, ForwardIterator last, Container& entries);
+
+  template<ForwardRange, class Container>
+  bool read(const ForwardRange& range, Container& entries);
+
+  template<class E, class T, class Container>
+  bool read(std::basic_istream<E, T>& in, Container& entries);
+
+
+.. vi: sw=2 ts=2 tw=80 et ft=rst fenc=utf-8 spell spelllang=en
