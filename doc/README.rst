@@ -149,9 +149,9 @@ have the following meanings.
 tag
   The tag of a BibTeX entry that identifies its type. For example, the tag of
   the entry ::
-    
-    @string{IEEE = {IEEE Computer Society}} 
-    
+
+    @string{IEEE = {IEEE Computer Society}}
+
   seen previously has the value ``string``.
 
 key
@@ -178,7 +178,7 @@ Reference
 
   typedef std::vector<std::string> ValueVector;
   typedef std::pair<std::string,  ValueVector> KeyValue;
-  typedef std::vector<KeyValue> KeyValueVector;  
+  typedef std::vector<KeyValue> KeyValueVector;
 
 |BibTeXEntry|
 
