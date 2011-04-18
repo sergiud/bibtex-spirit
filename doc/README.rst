@@ -177,7 +177,7 @@ Reference
 .. code-block:: c++
 
   typedef std::vector<std::string> ValueVector;
-  typedef std::pair<std::string,  ValueVector> KeyValue;
+  typedef std::pair<std::string, ValueVector> KeyValue;
   typedef std::vector<KeyValue> KeyValueVector;
 
 |BibTeXEntry|

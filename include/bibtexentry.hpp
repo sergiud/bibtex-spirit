@@ -58,7 +58,7 @@ namespace encoding = boost::spirit::standard;
 } // namespace detail
 
 typedef std::vector<std::string> ValueVector;
-typedef std::pair<std::string,  ValueVector> KeyValue;
+typedef std::pair<std::string, ValueVector> KeyValue;
 typedef std::vector<KeyValue> KeyValueVector;
 typedef detail::encoding::space_type Space;
 
