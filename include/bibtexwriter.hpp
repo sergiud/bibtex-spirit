@@ -29,10 +29,18 @@
 
 #pragma once
 
+#include <iterator>
+#include <ostream>
+#include <string>
+
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/range/has_range_iterator.hpp>
 #include <boost/spirit/include/karma.hpp>
 #include <boost/spirit/include/phoenix.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #include "bibtexentry.hpp"
 
@@ -174,8 +182,17 @@ private:
     boost::spirit::karma::symbols<char, const char*> escapedBrace;
 };
 
-template<class OutputIterator, class Range, class Skipper>
-inline bool write(OutputIterator out, const Range& range, Skipper& skipper,
+template<class OutputIterator, class Skipper>
+inline bool write(OutputIterator out, const  Skipper& skipper,
+                  const BibTeXEntry& entry)
+{
+    BibTeXWriter<OutputIterator, Skipper> writer;
+    return boost::spirit::karma::generate_delimited(out, writer,
+        boost::spirit::karma::eol, entry);
+}
+
+template<class OutputIterator, class Skipper, class Range>
+inline bool write(OutputIterator out, Skipper& skipper, const Range& range,
     typename boost::enable_if<boost::has_range_iterator<Range> >::type*
         /*dummy*/ = NULL)
 {
@@ -184,12 +201,38 @@ inline bool write(OutputIterator out, const Range& range, Skipper& skipper,
         boost::spirit::karma::eol, range);
 }
 
+template<class OutputIterator>
+inline bool write(OutputIterator out, const BibTeXEntry& entry)
+{
+    return write(out, space, entry);
+}
+
 template<class OutputIterator, class Range>
 inline bool write(OutputIterator out, const Range& range,
     typename boost::enable_if<boost::has_range_iterator<Range> >::type*
         /*dummy*/ = NULL)
 {
-    return write(out, range, space);
+    return write(out, space, range);
+}
+
+template<class E, class T>
+inline std::basic_ostream<E, T>& operator<<(std::basic_ostream<E, T>& out,
+    const BibTeXEntry& entry)
+{
+    write(std::ostream_iterator<E>(out), entry);
+    return out;
+}
+
+template<class E, class T, class Range>
+inline typename boost::enable_if<
+    boost::mpl::and_<
+        boost::has_range_iterator<Range>,
+        boost::is_same<typename Range::value_type, BibTeXEntry>
+    >, std::basic_ostream<E, T>
+>::type& operator<<(std::basic_ostream<E, T>& out, const Range& entries)
+{
+    write(std::ostream_iterator<E>(out), entries);
+    return out;
 }
 
 } // namespace bibtex

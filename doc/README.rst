@@ -9,7 +9,7 @@ BibTeX C++ parser library
 -------------------------
 
 :Author:    Sergiu Dotenco
-:Date:      April 18, 2011
+:Date:      April 23, 2011
 :Version:   0.1
 :Copyright: This document is placed in the public domain.
 
@@ -191,23 +191,66 @@ Reference
   bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs);
   bool operator!=(const BibTeXEntry& lhs, const BibTeXEntry& rhs);
 
-  template<ForwardIterator>
+
+Reading entries
+---------------
+
+.. code-block:: c++
+
+  // Single entries
+
+  template<class ForwardIterator>
   bool read(ForwardIterator first, ForwardIterator last, BibTeXEntry& e);
 
-  template<ForwardRange>
+  template<class ForwardRange>
   bool read(const ForwardRange& range, BibTeXEntry& e);
 
   template<class E, class T>
   bool read(std::basic_istream<E, T>& in, BibTeXEntry& e);
 
-  template<ForwardIterator, class Container>
+  template<class E, class T>
+  std::basic_istream<E, T>& operator>>(std::basic_istream<E, T>& in, BibTeXEntry& entry);
+
+  // Multiple entries
+
+  template<class ForwardIterator, class Container>
   bool read(ForwardIterator first, ForwardIterator last, Container& entries);
 
-  template<ForwardRange, class Container>
+  template<class ForwardRange, class Container>
   bool read(const ForwardRange& range, Container& entries);
 
   template<class E, class T, class Container>
   bool read(std::basic_istream<E, T>& in, Container& entries);
+
+  template<class E, class T, class Range>
+  std::basic_istream<E, T>& operator>>(std::basic_istream<E, T>& in, Range& entries);
+
+Writing entries
+---------------
+
+.. code-block:: c++
+
+  // Single entries
+
+  template<class OutputIterator>
+  bool write(OutputIterator out, const BibTeXEntry& e);
+
+  template<class E, class T>
+  bool write(std::basic_ostream<E, T>& out, const BibTeXEntry& e);
+
+  template<class E, class T>
+  std::basic_ostream<E, T>& operator<<(std::basic_ostream<E, T>& out, const BibTeXEntry& entry);
+
+  // Multiple entries
+
+  template<class OutputIterator, class Range>
+  bool write(OutputIterator out, const Range& entries);
+
+  template<class E, class T, class Range>
+  bool write(std::basic_ostream<E, T>& out, const Range& entries);
+
+  template<class E, class T, class Range>
+  std::basic_ostream<E, T>& operator<<(std::basic_ostream<E, T>& out, const Range& entries);
 
 
 .. vi: sw=2 ts=2 tw=80 et ft=rst fenc=utf-8 spell spelllang=en

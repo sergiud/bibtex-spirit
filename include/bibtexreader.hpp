@@ -30,9 +30,12 @@
 #pragma once
 
 #include <istream>
+#include <iterator>
+#include <string>
 
 #include <boost/fusion/include/vector.hpp>
 #include <boost/io/ios_state.hpp>
+#include <boost/mpl/and.hpp>
 #include <boost/range.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
@@ -135,15 +138,15 @@ public:
             = value_ % '#'
             ;
 
-        entry_
+        field_
             = key_ >> '=' >> values_
             ;
 
-        entries_ = -(entry_ % ',');
+        fields_ = -(field_ % ',');
 
         body_
             = -entryKey_ >> ',' // tolerate an empty key
-            >> entries_
+            >> fields_
             >> -qi::lit(',') // accept a trailing comma
             ;
 
@@ -176,9 +179,9 @@ public:
             ]
             >>
             (
-                ('{' >> entry_ >> '}')
+                ('{' >> field_ >> '}')
                 |
-                ('(' >> entry_ >> ')')
+                ('(' >> field_ >> ')')
             )
             [
                 ph::assign(ph::bind(&BibTeXEntry::fields, _val), 1, _1)
@@ -234,9 +237,9 @@ private:
     boost::spirit::qi::rule<ForwardIterator,
         boost::fusion::vector<boost::optional<std::string>,
         KeyValueVector>(), Skipper> body_;
-    boost::spirit::qi::rule<ForwardIterator, KeyValue(), Skipper> entry_;
+    boost::spirit::qi::rule<ForwardIterator, KeyValue(), Skipper> field_;
     boost::spirit::qi::rule<ForwardIterator, KeyValueVector(), Skipper>
-        entries_;
+        fields_;
     boost::spirit::qi::symbols<char, char> escapedBrace;
     boost::spirit::qi::symbols<char, char> escapedQuote;
     StringRule quoted_;
@@ -332,6 +335,26 @@ inline bool read(std::basic_istream<E, T>& in, Container& entries)
 
     typedef boost::spirit::basic_istream_iterator<E> istream_iterator;
     return read(istream_iterator(in), istream_iterator(), entries);
+}
+
+template<class E, class T>
+inline std::basic_istream<E, T>& operator>>(std::basic_istream<E, T>& in,
+    BibTeXEntry& entry
+{
+    read(in, entry);
+    return in;
+}
+
+template<class E, class T, class Range>
+inline typename boost::enable_if<
+    boost::mpl::and_<
+        boost::has_range_iterator<Range>,
+        boost::is_same<typename Range::value_type, BibTeXEntry>
+    >, std::basic_istream<E, T>
+>::type& operator>>(std::basic_istream<E, T>& in, Range& entries)
+{
+    read(std::istream_iterator<E>(out), entries);
+    return in;
 }
 
 } // namespace bibtex
