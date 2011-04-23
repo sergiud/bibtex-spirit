@@ -60,10 +60,10 @@ location, where the compiler can find them.
 Reading entries
 ---------------
 
-Reading BibTeX bibliographies is easy. Just open an input stream and pass it to
-the ``read`` function together with a container of ``bibtex::BibTeXEntry``
-objects as shown below. After the call the container will contain all the
-entries that have been successfully read.
+Reading BibTeX bibliographies is easy. Simply pass an input stream to the
+``read`` function together with a container of ``bibtex::BibTeXEntry`` objects
+as shown below. After the call the container will contain all the entries that
+have been successfully read.
 
 .. code-block:: c++
 
@@ -169,6 +169,10 @@ fields
 
 
 .. [#] Iterators passed to the ``read`` function have to be *forward* iterators.
+
+
+Writing entries
+---------------
 
 
 Reference
