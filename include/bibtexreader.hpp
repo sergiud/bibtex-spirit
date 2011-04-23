@@ -250,29 +250,6 @@ private:
     SimpleStringRule quoteText_;
 };
 
-/**
- * @brief Multiple BibTeX entries reader.
- *
- * @tparam ForwardIterator Input sequence iterator type.
- * @tparam Container Container type that will contain the entries.
- * @tparam Skipper Skipper type.
- */
-template <class ForwardIterator, class Container, class Skipper>
-class BibTeXContainerReader
-    : public boost::spirit::qi::grammar<ForwardIterator, Container(), Skipper>
-{
-public:
-    BibTeXContainerReader()
-        : BibTeXContainerReader::base_type(start_, "multiple BibTeX entries")
-    {
-        start_ = *parser_;
-    }
-
-private:
-    BibTeXReader<ForwardIterator, Skipper> parser_;
-    boost::spirit::qi::rule<ForwardIterator, Container(), Skipper> start_;
-};
-
 template<class ForwardIterator, class Skipper>
 inline bool read(ForwardIterator first, ForwardIterator last, Skipper& skipper,
                   BibTeXEntry& entry)
@@ -286,8 +263,8 @@ inline bool read(ForwardIterator first, ForwardIterator last, Skipper& skipper,
     Container& entries, boost::enable_if<boost::is_same<
         typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
-    BibTeXContainerReader<ForwardIterator, Container, Skipper> parser;
-    return boost::spirit::qi::phrase_parse(first, last, parser, skipper,
+    BibTeXReader<ForwardIterator, Skipper> parser;
+    return boost::spirit::qi::phrase_parse(first, last, *parser, skipper,
         entries);
 }
 
