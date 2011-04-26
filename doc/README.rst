@@ -222,8 +222,8 @@ Reading entries
   template<class E, class T, class Container>
   bool read(std::basic_istream<E, T>& in, Container& entries);
 
-  template<class E, class T, class Range>
-  std::basic_istream<E, T>& operator>>(std::basic_istream<E, T>& in, Range& entries);
+  template<class E, class T, class Container>
+  std::basic_istream<E, T>& operator>>(std::basic_istream<E, T>& in, Container& entries);
 
 Writing entries
 ---------------
