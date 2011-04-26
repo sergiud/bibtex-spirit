@@ -31,7 +31,7 @@
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        std::cerr << "Not enough arguments" << std::endl;
+        std::cerr << "error: not enough arguments\n";
         return EXIT_FAILURE;
     }
 
@@ -53,14 +53,14 @@ int main(int argc, char** argv)
     std::ifstream in(argv[1]);
 
     if (!in) {
-        std::cerr << "Could not open " << argv[1] << std::endl;
+        std::cerr << "error: could not open " << argv[1] << "\n";
         return EXIT_FAILURE;
     }
 
     BibTeXEntryVector e;
     bool result = read(in, e);
 
-    std::cout << "Found " << e.size() << " entries" << std::endl;
+    std::cout << "found " << e.size() << " entries\n";
 
     return result && (!expected || e.size() == *expected) ?
         EXIT_SUCCESS : EXIT_FAILURE;
