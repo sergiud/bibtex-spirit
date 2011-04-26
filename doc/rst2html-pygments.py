@@ -23,11 +23,11 @@ from docutils.core import publish_cmdline, default_description
 
 description = ('Generates (X)HTML documents from standalone reStructuredText '
                'sources. Uses `pygments` to colorize the content of'
-               '"code-block" directives. Needs an adapted stylesheet' 
+               '"code-block" directives. Needs an adapted stylesheet'
                + default_description)
 
 # Define a new directive `code-block` that uses the `pygments` source
-# highlighter to render code in color. 
+# highlighter to render code in color.
 #
 # Code from the `pygments`_ documentation for `Using Pygments in ReST
 # documents`_.
