@@ -72,8 +72,8 @@ public:
             ;
 
         tag_ = +detail::encoding::alnum;
-        entryKey_ = +(qi::char_ - ',');
-        key_ = +~qi::char_("=,})");
+        entryKey_ = qi::lexeme[+(~qi::char_(',') - sn::space)];
+        key_ = qi::lexeme[+(~qi::char_("=,})") - sn::space)];
 
         escapedText_
             = !qi::lit('{') >> +(escapedBrace | ~qi::char_("{}"))
@@ -215,10 +215,18 @@ public:
             ]
             ;
 
-        start_
+        entry_
             = string_
             | simple_
             | generic_
+            ;
+
+        junk_
+            = *~qi::lit('@')
+            ;
+
+        start_
+            = junk_ >> entry_
             ;
     }
 
@@ -233,7 +241,9 @@ private:
     boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> simple_;
     boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> start_;
     boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> string_;
+    boost::spirit::qi::rule<ForwardIterator, BibTeXEntry(), Skipper> entry_;
     boost::spirit::qi::rule<ForwardIterator, ValueVector(), Skipper> values_;
+    boost::spirit::qi::rule<ForwardIterator, Skipper> junk_;
     boost::spirit::qi::rule<ForwardIterator,
         boost::fusion::vector<boost::optional<std::string>,
         KeyValueVector>(), Skipper> body_;
@@ -339,7 +349,7 @@ inline bool read(std::basic_istream<E, T>& in, Container& entries)
 
 template<class E, class T>
 inline std::basic_istream<E, T>& operator>>(std::basic_istream<E, T>& in,
-    BibTeXEntry& entry
+    BibTeXEntry& entry)
 {
     read(in, entry);
     return in;

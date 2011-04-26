@@ -331,3 +331,35 @@ BOOST_AUTO_TEST_CASE(separated)
     BOOST_CHECK_EQUAL(e.fields[6].first, "last");
     BOOST_CHECK(e.fields[6].second == values2);
 }
+
+BOOST_AUTO_TEST_CASE(junk)
+{
+    std::vector<BibTeXEntry> e;
+
+    const char test[] =
+        "@book{abc1,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\","
+        "   bcd-e = ack,"
+        "   more = abc # dfg # { , } # a,"
+        "   normal = test,"
+        "   last = \"last\" # { one}"
+        "}"
+        "junk\n"
+        "ignored"
+        "@book{abc11,"
+        "   a = {b asd asd\nsecond line\nthird line adas das },\n"
+        "   c = %{d asd adasd a}, d =\n {d asd \\} adasd a},"
+        "   d123 = \"test test\\\" aa\","
+        "   bcd-e = ack,"
+        "   more = abc # dfg # { , } # a,"
+        "   normal = test,"
+        "   last = \"last\" # { one}"
+        "}";
+
+    BOOST_REQUIRE(read(test, e));
+    BOOST_REQUIRE_EQUAL(e.size(), 2);
+    BOOST_REQUIRE(e[0] == e[1]);
+    BOOST_REQUIRE_EQUAL(e[0].fields.size(), 7);
+}
