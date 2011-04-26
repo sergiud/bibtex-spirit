@@ -30,7 +30,6 @@
 #pragma once
 
 #include <istream>
-#include <iterator>
 #include <string>
 
 #include <boost/fusion/include/vector.hpp>
@@ -363,7 +362,7 @@ inline typename boost::enable_if<
     >, std::basic_istream<E, T>
 >::type& operator>>(std::basic_istream<E, T>& in, Range& entries)
 {
-    read(std::istream_iterator<E>(out), entries);
+    read(in, entries);
     return in;
 }
 
