@@ -210,7 +210,8 @@ public:
             )
             [
                 ph::assign(ph::bind(&BibTeXEntry::fields, _val), 1,
-                    ph::construct<KeyValue>(KeyValue::first_type(), _1))
+                    ph::construct<KeyValue>
+                        (ph::construct<KeyValue::first_type>(), _1))
             ]
             ;
 
