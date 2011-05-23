@@ -291,7 +291,7 @@ inline bool read(const ForwardRange& range, Skipper& skipper,
 template<class ForwardRange, class Skipper, class Container>
 inline bool read(const ForwardRange& range, Skipper& skipper,
     Container& entries, boost::enable_if<boost::is_same<
-        typename Container::value_type, BibTeXEntry> >* dummy = NULL)
+        typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
 {
     return read(boost::const_begin(range), boost::const_end(range), entries);
 }
