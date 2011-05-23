@@ -9,7 +9,7 @@ BibTeX C++ parser library
 -------------------------
 
 :Author:    Sergiu Dotenco
-:Date:      April 23, 2011
+:Date:      May 23, 2011
 :Version:   0.1
 :Copyright: This document is placed in the public domain.
 
@@ -116,8 +116,7 @@ The above ``read`` call can be shortened using
 
 To indicate that the bibliography being parsed contains syntax errors the
 ``read`` function will return ``false``. For instance, unexpected characters
-between bibliography entries (TeX comments excluded) are treated as syntax
-errors.
+between bibliography entries—TeX comments excluded—are treated as syntax errors.
 
 .. code-block:: c++
 
@@ -152,7 +151,7 @@ tag
 
     @string{IEEE = {IEEE Computer Society}}
 
-  seen previously has the value ``string``.
+  has the value ``string``.
 
 key
   *Optional* entry key. BibTeX entry types ``string``, ``preamble`` and
