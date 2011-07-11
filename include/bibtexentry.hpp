@@ -53,7 +53,7 @@ namespace bibtex {
 
 namespace detail {
 
-namespace encoding = boost::spirit::standard;
+namespace encoding = boost::spirit::standard_wide;
 
 } // namespace detail
 
