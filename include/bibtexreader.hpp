@@ -19,9 +19,10 @@
 // SOFTWARE.
 
 /**
- * @brief Boost.Spirit v2 based BibTeX parser.
+ * @brief Boost.Spirit based BibTeX parser.
  * @file bibtexreader.hpp
  * @author Sergiu Dotenco
+ * @version 0.1
  */
 
 #ifndef BIBTEXREADER_HPP

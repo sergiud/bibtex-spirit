@@ -22,6 +22,7 @@
  * @brief BibTeX entry.
  * @file bibtexentry.hpp
  * @author Sergiu Dotenco
+ * @version 0.1
  */
 
 #ifndef BIBTEXENTRY_HPP

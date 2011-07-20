@@ -19,9 +19,10 @@
 // SOFTWARE.
 
 /**
- * @brief Boost.Spirit v2 based BibTeX generator.
+ * @brief Boost.Spirit based BibTeX generator.
  * @file bibtexwriter.hpp
  * @author Sergiu Dotenco
+ * @version 0.1
  */
 
 #ifndef BIBTEXWRITER_HPP

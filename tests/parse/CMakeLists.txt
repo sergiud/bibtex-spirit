@@ -1,6 +1,13 @@
+find_package (bibtex_spirit REQUIRED NO_MODULE)
+
+include_directories (${bibtex_spirit_INCLUDE_DIR} ${bibtex_spirit_INCLUDE_DIRS})
+
+add_definitions (${bibtex_spirit_DEFINITIONS})
+
 add_executable (test_parse main.cpp ${BIBTEX_HPP})
 
-target_link_libraries (test_parse ${Boost_LIBRARIES})
+target_link_libraries (test_parse ${Boost_LIBRARIES}
+  ${bibtex_spririt_LIBRARY} ${bibtex_spririt_LIBRARIES})
 
 add_test (structure-1 test_parse -t structure_1)
 add_test (structure-2 test_parse -t structure_2)

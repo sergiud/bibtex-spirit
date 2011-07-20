@@ -5,19 +5,16 @@ option (Boost_USE_STATIC_LIBS "Use static Boost libraries" ON)
 
 enable_testing ()
 
+set (bibtex_spirit_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 set (CPACK_GENERATOR ZIP TGZ)
 include (CPack)
-
-find_package (Boost 1.46 REQUIRED unit_test_framework)
 
 # Do not link Boost libraries automatically
 add_definitions (-DBOOST_ALL_NO_LIB)
 
 file (GLOB BIBTEX_HPP include/*.hpp)
 
-include_directories (${Boost_INCLUDE_DIRS})
-include_directories (include)
-
 add_subdirectory (tests)
 
-install (FILES ${BIBTEX_HPP} DESTINATION include/bibtex)
+install (FILES ${BIBTEX_HPP} DESTINATION include/bibtex_spirit)
