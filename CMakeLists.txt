@@ -13,7 +13,11 @@ include (CPack)
 # Do not link Boost libraries automatically
 add_definitions (-DBOOST_ALL_NO_LIB)
 
-file (GLOB BIBTEX_HPP include/*.hpp)
+set (BIBTEX_HPP
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/bibtexentry.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/bibtexreader.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/bibtexwriter.hpp
+)
 
 add_subdirectory (tests)
 
