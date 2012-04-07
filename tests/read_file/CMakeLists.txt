@@ -23,3 +23,5 @@ add_test (NAME read-file-5 COMMAND test_read_file
   ${TEST_DATA_DIR}/test5.bib 4649)
 add_test (NAME read-file-6 COMMAND test_read_file
   ${TEST_DATA_DIR}/test6.bib 21099)
+add_test (NAME read-file-biblatex-examples COMMAND test_read_file
+  ${TEST_DATA_DIR}/biblatex-examples.bib 86)
