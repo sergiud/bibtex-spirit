@@ -85,16 +85,13 @@ public:
 
         innerBraceText_
             %=
-            (
+            qi::as_string
+            [
                 qi::char_('{')
                 >>
                     *(innerBraceText_ | escapedText_)
                 >>
                 qi::char_('}')
-            )
-            [
-                _val = _1 + ph::accumulate(_2, ph::construct<std::string>()) +
-                    _3
             ]
             |
             escapedText_
@@ -102,16 +99,13 @@ public:
 
         innerQuoteText_
             %=
-            (
+            qi::as_string
+            [
                 qi::char_('{')
                 >>
                     *(innerQuoteText_ | escapedText_)
                 >>
                 qi::char_('}')
-            )
-            [
-                _val = _1 + ph::accumulate(_2, ph::construct<std::string>()) +
-                    _3
             ]
             |
             quoteText_
