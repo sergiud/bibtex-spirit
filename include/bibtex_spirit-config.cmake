@@ -1,4 +1,4 @@
-find_package (Boost REQUIRED)
+find_package (Boost 1.46 REQUIRED)
 
 set (bibtex_spirit_DEFINITIONS)
 set (bibtex_spirit_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
