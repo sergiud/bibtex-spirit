@@ -71,7 +71,7 @@ public:
 
         tag_ = +enc::alnum;
         key_ = +~karma::char_(',');
-        value_ = *(escapedBrace | ~enc::char_("{}"));
+        value_ = *(escapedBrace | ~karma::char_("{}"));
 
         values_
             = ('{' << value_ << '}') % " # ";
@@ -99,11 +99,11 @@ public:
             =
             &
             (
-                enc::string("comment")
+                karma::string("comment")
                 |
-                enc::string("include")
+                karma::string("include")
                 |
-                enc::string("preamble")
+                karma::string("preamble")
             )
             [
                 _1 = ph::bind(tolower, ph::at_c<0>(_val))
@@ -111,7 +111,7 @@ public:
             <<
             '@'
             <<
-            enc::string
+            karma::string
             [
                 _1 = ph::at_c<0>(_val)
             ]
@@ -128,14 +128,14 @@ public:
 
         string_
             =
-            &enc::string("string")
+            &karma::string("string")
             [
                 _1 = ph::bind(tolower, ph::at_c<0>(_val))
             ]
             <<
             '@'
             <<
-            enc::string
+            karma::string
             [
                 _1 = ph::at_c<0>(_val)
             ]
