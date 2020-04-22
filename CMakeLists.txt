@@ -10,7 +10,7 @@ set (bibtex_spirit_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set (CPACK_GENERATOR ZIP TGZ)
 
-find_package (Boost 1.70 REQUIRED unit_test_framework NO_MODULE)
+find_package (Boost 1.58 REQUIRED unit_test_framework)
 
 include (CPack)
 include (CTest)
