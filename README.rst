@@ -1,5 +1,10 @@
 .. -*- restructuredtext -*-
 
+.. image:: https://travis-ci.org/sergiud/bibtex-spirit.svg?branch=master
+    :target: https://travis-ci.org/sergiud/bibtex-spirit
+.. image:: https://coveralls.io/repos/github/sergiud/bibtex-spirit/badge.svg?branch=master
+    :target: https://coveralls.io/github/sergiud/bibtex-spirit?branch=master
+
 What is bibtex-spirit?
 ======================
 
