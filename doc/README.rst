@@ -8,7 +8,7 @@ bibtex-spirit
 BibTeX C++ parser library
 -------------------------
 
-:Author:    Sergiu Dotenco
+:Author:    Sergiu Deitsch
 :Date:      May 23, 2011
 :Version:   0.1
 :Copyright: This document is placed in the public domain.

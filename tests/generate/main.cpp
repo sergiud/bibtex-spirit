@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Sergiu Dotenco
+// Copyright (c) 2011, 2020 Sergiu Deitsch
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "bibtexwriter.hpp"
-
-using bibtex::BibTeXEntry;
 
 BOOST_AUTO_TEST_CASE(structure_1)
 {

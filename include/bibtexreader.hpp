@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Sergiu Dotenco
+// Copyright (c) 2012, 2020 Sergiu Deitsch
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 /**
  * @brief Boost.Spirit based BibTeX parser.
  * @file bibtexreader.hpp
- * @author Sergiu Dotenco
+ * @author Sergiu Deitsch
  * @version 0.1
  */
 
@@ -277,16 +277,18 @@ inline bool read(ForwardIterator first, ForwardIterator last, Skipper& skipper,
 }
 
 template<class ForwardRange, class Skipper>
-inline bool read(const ForwardRange& range, Skipper& skipper,
+inline bool read(const ForwardRange& range, Skipper& /*skipper*/,
                  BibTeXEntry& entry)
 {
     return read(boost::const_begin(range), boost::const_end(range), entry);
 }
 
 template<class ForwardRange, class Skipper, class Container>
-inline bool read(const ForwardRange& range, Skipper& skipper,
-    Container& entries, boost::enable_if<boost::is_same<
-        typename Container::value_type, BibTeXEntry> >* /*dummy*/ = NULL)
+inline bool read(
+    const ForwardRange& range, Skipper& /*skipper*/, Container& entries,
+    boost::enable_if<
+        boost::is_same<typename Container::value_type, BibTeXEntry> >* /*dummy*/
+    = NULL)
 {
     return read(boost::const_begin(range), boost::const_end(range), entries);
 }

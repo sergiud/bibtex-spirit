@@ -1,4 +1,4 @@
-// Copyright (c) 2012 Sergiu Dotenco
+// Copyright (c) 2012, 2020 Sergiu Deitsch
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 /**
  * @brief Boost.Spirit based BibTeX generator.
  * @file bibtexwriter.hpp
- * @author Sergiu Dotenco
+ * @author Sergiu Deitsch
  * @version 0.1
  */
 
@@ -184,7 +184,7 @@ private:
 };
 
 template<class OutputIterator, class Skipper>
-inline bool write(OutputIterator out, const  Skipper& skipper,
+inline bool write(OutputIterator out, const Skipper& /*skipper*/,
                   const BibTeXEntry& entry)
 {
     BibTeXWriter<OutputIterator, Skipper> writer;
@@ -193,9 +193,11 @@ inline bool write(OutputIterator out, const  Skipper& skipper,
 }
 
 template<class OutputIterator, class Skipper, class Range>
-inline bool write(OutputIterator out, Skipper& skipper, const Range& range,
+inline bool write(
+    OutputIterator out, Skipper& /*skipper*/, const Range& range,
     typename boost::enable_if<boost::has_range_iterator<Range> >::type*
-        /*dummy*/ = NULL)
+    /*dummy*/
+    = NULL)
 {
     BibTeXWriter<OutputIterator, Skipper> writer;
     return boost::spirit::karma::generate_delimited(out, *writer,
