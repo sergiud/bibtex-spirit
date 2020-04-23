@@ -26,3 +26,5 @@ after_success:
   - lcov --remove coverage.info 'test/*' '/usr/*' --output-file coverage.info
   - lcov --list coverage.info
   - coveralls-lcov --repo-token=${COVERALLS_TOKEN} coverage.info
+  - bash <(curl -s https://codecov.io/bash)
+
