@@ -7,6 +7,9 @@ bibtex-spirit
    :target: https://travis-ci.org/sergiud/bibtex-spirit
 .. image:: https://coveralls.io/repos/github/sergiud/bibtex-spirit/badge.svg?branch=master
    :target: https://coveralls.io/github/sergiud/bibtex-spirit?branch=master
+.. image:: https://ci.appveyor.com/api/projects/status/lsf2a69373gl335r?svg=true
+   :alt: Build status
+   :target: https://ci.appveyor.com/project/sergiud/bibtex-spirit
 .. image:: https://api.codacy.com/project/badge/Grade/04c4cda4e559482c916befe75f0e75c7
    :alt: Codacy Badge
    :target: https://app.codacy.com/manual/sergiud/bibtex-spirit?utm_source=github.com&utm_medium=referral&utm_content=sergiud/bibtex-spirit&utm_campaign=Badge_Grade_Dashboard

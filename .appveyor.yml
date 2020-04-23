@@ -1,0 +1,15 @@
+version: 1.0.{build}
+image:
+  - Visual Studio 2013
+  - Visual Studio 2015
+  - Visual Studio 2017
+  - Visual Studio 2019
+configuration: Release
+platform:
+  - x86
+  - x64
+clone_folder: c:\projects\bibtex-spirit
+build_script:
+  - scripts/build.cmd
+test_script:
+  - cmd: ctest --output-on-failure -C Debug

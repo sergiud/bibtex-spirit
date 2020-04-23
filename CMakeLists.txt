@@ -4,10 +4,6 @@ project (bibtex-spirit
   LANGUAGES CXX
 )
 
-option (Boost_USE_STATIC_LIBS "Use static Boost libraries" ON)
-
-set (bibtex_spirit_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 set (CPACK_GENERATOR ZIP TGZ)
 
 find_package (Boost 1.58 REQUIRED unit_test_framework)
@@ -16,7 +12,8 @@ include (CPack)
 include (CTest)
 
 # Do not link Boost libraries automatically
-add_definitions (-DBOOST_ALL_NO_LIB)
+add_compile_definitions (BOOST_ALL_NO_LIB)
+add_compile_definitions (BOOST_TEST_DYN_LINK)
 
 add_library (bibtex-spirit INTERFACE)
 target_include_directories (bibtex-spirit INTERFACE
