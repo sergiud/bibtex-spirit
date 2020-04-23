@@ -24,3 +24,8 @@ generate the appropriate configuration that can be used to compile the tests
 using make/nmake or inside an IDE.
 
 .. vi: ft=rst
+
+
+.. image:: https://api.codacy.com/project/badge/Grade/04c4cda4e559482c916befe75f0e75c7
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/manual/sergiud/bibtex-spirit?utm_source=github.com&utm_medium=referral&utm_content=sergiud/bibtex-spirit&utm_campaign=Badge_Grade_Dashboard
