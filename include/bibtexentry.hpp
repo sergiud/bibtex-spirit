@@ -83,7 +83,7 @@ struct BibTeXEntry
 
 inline bool operator==(const BibTeXEntry& lhs, const BibTeXEntry& rhs)
 {
-    return lhs.tag == rhs.tag && lhs.fields == rhs.fields;
+    return lhs.tag == rhs.tag && lhs.key == rhs.key && lhs.fields == rhs.fields;
 }
 
 } // namespace bibtex
