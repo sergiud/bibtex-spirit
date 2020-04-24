@@ -253,7 +253,8 @@ BOOST_AUTO_TEST_CASE(multiple_1)
     BOOST_REQUIRE(read(test, e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
 
-    BOOST_CHECK(e[0] == e[1]);
+    BOOST_CHECK_EQUAL(e[0].tag, e[1].tag);
+    BOOST_CHECK(e[0].fields == e[1].fields);
 }
 
 BOOST_AUTO_TEST_CASE(multiple_2)
@@ -277,7 +278,8 @@ BOOST_AUTO_TEST_CASE(multiple_2)
     BOOST_REQUIRE(read(test, e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
 
-    BOOST_CHECK(e[0] == e[1]);
+    BOOST_CHECK_EQUAL(e[0].tag, e[1].tag);
+    BOOST_CHECK(e[0].fields == e[1].fields);
 }
 
 BOOST_AUTO_TEST_CASE(mixed_multiple)
@@ -300,7 +302,8 @@ BOOST_AUTO_TEST_CASE(mixed_multiple)
     BOOST_REQUIRE(read(test, e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
 
-    BOOST_CHECK(e[0] == e[1]);
+    BOOST_CHECK_EQUAL(e[0].tag, e[1].tag);
+    BOOST_CHECK(e[0].fields == e[1].fields);
 }
 
 BOOST_AUTO_TEST_CASE(separated)
@@ -360,6 +363,7 @@ BOOST_AUTO_TEST_CASE(junk)
 
     BOOST_REQUIRE(read(test, e));
     BOOST_REQUIRE_EQUAL(e.size(), 2);
-    BOOST_REQUIRE(e[0] == e[1]);
-    BOOST_REQUIRE_EQUAL(e[0].fields.size(), 7);
+    BOOST_CHECK_EQUAL(e[0].tag, e[1].tag);
+    BOOST_CHECK(e[0].fields == e[1].fields);
+    BOOST_CHECK_EQUAL(e[0].fields.size(), 7);
 }
